@@ -44,6 +44,7 @@ if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine
   noLoop()
   p.noLoop()
   c.noLoop()
+
 }
 
 function draw() {
@@ -51,7 +52,20 @@ function draw() {
   p.background(bgc)
 
   //Sketch
-
+  // try drawing an image, placing colored areas 
+  // only where there is white, and retracting each 
+  // until the image is white (not just distance)
+  for(let j = 0; j < 10; j++) {
+    center = createVector(randomVal(0, w), randomVal(0, h))
+    for(let i = 0; i < 20; i++) {
+      maxOff = 500
+      xOff = randomVal(-maxOff, maxOff)/2
+      yOff = randomVal(-maxOff, maxOff)/2
+      
+      limitOrb(center.x+xOff, center.y+yOff, randomVal(100, maxOff*2), 500)
+    }
+  }
+  
 
   //Post processing
    copy(p, 0, 0, w, h, 0, 0, w, h)
@@ -59,6 +73,8 @@ function draw() {
    shader(shade)
    shade.setUniform("u_resolution", [w, h]);
    shade.setUniform("p", p);
+   shade.setUniform("pMap", p);
+
    shade.setUniform("seed", randomVal(0, 10));
    shade.setUniform("marg", map(marg, 0, w, 0, 1));
    shade.setUniform("bgc", [

@@ -22,7 +22,21 @@ float random (vec2 st) {
         43758.5453123);
 }
 
+vec3 adjustContrast(vec3 color, float value) {
+  return 0.5 + (1.0 + value) * (color - 0.5);
+}
+vec3 adjustExposure(vec3 color, float value) {
+  return (1.0 + value) * color;
+}
+vec3 adjustSaturation(vec3 color, float value) {
+  const vec3 luminosityFactor = vec3(0.2126, 0.7152, 0.0722);
+  vec3 grayscale = vec3(dot(color, luminosityFactor));
 
+  return mix(grayscale, color, 1.0 + value);
+}
+vec3 adjustBrightness(vec3 color, float value) {
+  return color + value;
+}
 
 float noise (in vec2 st) {
     vec2 i = floor(st);
@@ -50,21 +64,26 @@ void main() {
   vec2 uv = vTexCoord*u_resolution;
   vec2 st = vTexCoord;
   vec2 stB = vTexCoord;
+  vec2 stPaper = vTexCoord;
 
   //flip the upside down image
   st.y = 1.0 - st.y;
 
   //form noise
-  st.xy += (random(st.xy)*0.001)-0.0005;
+  // st.xy += (random(st.xy)*0.001)-0.0005;
   float warp = map(noise(seed+st.xy*5.0), 0.0, 1.0, -0.005, 0.005);
   //st.xy += warp;
 
   vec4 texP = texture2D(p, st);
+  vec4 texPMap = texture2D(p, st);
+
+  
 
   //color noise
-  float noiseGray = random(st.xy)*0.25;
+  float noiseGray = map(random(st.xy), 0.0, 1.0, -0.1, 0.1);
 
   vec3 color = vec3(0.0);
+  vec3 mapCol = texPMap.rgb;
   vec3 final = vec3(0.0);
   color = vec3(texP.r, texP.g, texP.b);
 
@@ -74,7 +93,15 @@ void main() {
   if(stB.x < margX || stB.x > 1.0-margX || stB.y < margY || stB.y > 1.0-margY) {
     color = vec3(bgc.r, bgc.g, bgc.b);
   }
-
-
-  gl_FragColor = vec4(color+noiseGray, 1.0);
+  stPaper.y *= 3.0;
+  float sine = sin(st.y*1200.0);
+  float sinOff = map(noise(stPaper.xy*100.0), 0.0, 1.0, -0.6, 0.6);
+  float randOff = map(random(st.xy), 0.0, 1.0, -0.5, 0.5);
+  if(sine+sinOff+randOff > 0.75) {
+    color = adjustExposure(color, -0.05*noise(st.xy*100.0));
+  } else if( sine+sinOff+randOff < -0.75) {
+    color = adjustExposure(color, 0.05*noise(st.xy*100.0));
+  }
+  color += noiseGray;
+  gl_FragColor = vec4(color, 1.0);
 }

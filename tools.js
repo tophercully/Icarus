@@ -93,11 +93,97 @@ function updateURLParameter(url, param, paramVal)
 }
 
 function randColor() {
-  return chroma(truePal[randomInt(0, truePal.length-1)]).saturate(2).hex()
+  return chroma(truePal[randomInt(0, truePal.length-1)]).hex()
 }
 
 function angBetween(x1, y1, x2, y2) {
   return Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
 }
 
+function ptFromAng(x, y, ang, dis) {
+  xC = cos(ang)*dis
+  yC = sin(ang)*dis
+
+  return createVector((x+xC), (y+yC))
+}
+
 ////////////////////////////////////////
+
+
+function limitOrb(x, y, r, trueR) {
+  trueR /= 2
+  phase = randomVal(0, 10000000)
+  phaseB = randomVal(0, 10000000)
+
+  p.push()
+  p.noFill()
+  col = randColor()
+  p.fill(chroma(col).alpha(randomVal(0.025, 0.2)).hex())
+  p.stroke(chroma(col).alpha(0.75).darken(2).hex())
+  p.strokeWeight(0.3)
+  p.beginShape()
+
+  noiseMax = randomVal(5, 30)
+  angNS = randomVal(0.1, 0.5)
+  for(let i = 0; i < 360; i+=0.1) {
+    xOff = map(cos(i), -1, 1, 0, noiseMax)
+    yOff = map(sin(i), -1, 1, 0, noiseMax)
+    rad = map(noise(xOff, yOff, phase), 0, 1, 0, r/2)//r/2
+    angOff = map(noise(xOff*angNS, yOff*angNS, phaseB), 0, 1, -360, 360)
+
+    here = ptFromAng(x, y, i+angOff, rad)
+    dist = here.dist(center)
+    tries = 0
+    while(dist > trueR) {
+      rad -= 1
+      here = ptFromAng(x, y, i, rad)
+      dist = here.dist(center)
+      tries++
+      if(tries > trueR) {
+        return
+      }
+    }
+    p.vertex(here.x, here.y)
+  }
+  p.endShape(CLOSE)
+  p.pop()
+}
+
+function limitSpread(x, y, r, trueR) {
+  trueR /= 2
+  phase = randomVal(0, 10000000)
+  phaseB = randomVal(0, 10000000)
+
+  p.push()
+  p.noFill()
+  col = randColor()
+  p.fill(chroma(col).alpha(randomVal(0.025, 0.2)).hex())
+  p.stroke(chroma(col).alpha(0.75).darken(2).hex())
+  p.strokeWeight(0.3)
+  p.beginShape()
+
+  noiseMax = randomVal(5, 30)
+  angNS = randomVal(0.1, 0.5)
+  for(let i = 0; i < 360; i+=0.1) {
+    xOff = map(cos(i), -1, 1, 0, noiseMax)
+    yOff = map(sin(i), -1, 1, 0, noiseMax)
+    rad = map(noise(xOff, yOff, phase), 0, 1, 0, r/2)//r/2
+    angOff = map(noise(xOff*angNS, yOff*angNS, phaseB), 0, 1, -360, 360)
+
+    here = ptFromAng(x, y, i+angOff, rad)
+    dist = here.dist(center)
+    tries = 0
+    while(dist > trueR) {
+      rad -= 1
+      here = ptFromAng(x, y, i, rad)
+      dist = here.dist(center)
+      tries++
+      if(tries > trueR) {
+        return
+      }
+    }
+    p.vertex(here.x, here.y)
+  }
+  p.endShape(CLOSE)
+  p.pop()
+}

@@ -24,7 +24,7 @@ bgNames = [
   "Raisin Black",
 ];
 //Background color parameters
-bgNum = randomInt(0, 9);
+bgNum = randomInt(0, 5)//randomInt(0, 9);
 bgc = bgCols[bgNum];
 bgName = bgNames[bgNum];
 
@@ -159,6 +159,39 @@ const oilPastel = [
 
 const popper = ["#F5D365", "#E66C64", "#92BCC8", "#4F7C9A", frameCol];
 
+const bau = [
+  "#1267b7",
+  "#ec3e2b",
+  "#f6b81a",
+  "#E4D6C2",
+  "#1D1F22",
+]
+
+const elliot = [
+  "#E73542",
+  "#F6A026",
+  "#2CA8C4",
+  "#EE7140",
+  "#289C5B",
+  "#F5E2CC",
+  "#161117"
+]
+const vint = [
+  'black',
+  '#FDDEBD',
+  '#3255A4',
+  '#62A8E5',
+  '#FF8E91'
+]
+const wildberry = [
+  'black',
+  '#62A8E5',
+  '#BB76CF',
+  '#407060',
+  '#FF6C2F',
+  '#fff0e0',
+]
+
 const pals = [source, shepard, toyBlocks, mcWoot, soft, jazzy, ceramic, oilPastel, mcNay, oKeefe, flowerMarket, oilPaint];
 
 const palNames = [
@@ -178,7 +211,7 @@ const palNames = [
 
 //Palette parameters
 palNum = randomInt(0, pals.length-1);
-pal = pals[palNum];
+pal = vint//pals[palNum];
 palName = palNames[palNum];
 
 console.log(palName)
