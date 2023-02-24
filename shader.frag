@@ -71,8 +71,8 @@ void main() {
 
   //form noise
   // st.xy += (random(st.xy)*0.001)-0.0005;
-  float warp = map(noise(seed+st.xy*5.0), 0.0, 1.0, -0.005, 0.005);
-  //st.xy += warp;
+  float warp = map(noise(seed+st.xy*5.0), 0.0, 1.0, -0.05, 0.05);
+  // st.xy += warp;
 
   vec4 texP = texture2D(p, st);
   vec4 texPMap = texture2D(p, st);
@@ -80,7 +80,7 @@ void main() {
   
 
   //color noise
-  float noiseGray = map(random(st.xy), 0.0, 1.0, -0.1, 0.1);
+  float noiseGray = map(random(stB.xy), 0.0, 1.0, -0.05, 0.05);
 
   vec3 color = vec3(0.0);
   vec3 mapCol = texPMap.rgb;
@@ -88,11 +88,11 @@ void main() {
   color = vec3(texP.r, texP.g, texP.b);
 
   //Draw margin
-  float margX = marg;
-  float margY = margX*0.8;
-  if(stB.x < margX || stB.x > 1.0-margX || stB.y < margY || stB.y > 1.0-margY) {
-    color = vec3(bgc.r, bgc.g, bgc.b);
-  }
+  // float margX = marg;
+  // float margY = margX*0.8;
+  // if(stB.x < margX || stB.x > 1.0-margX || stB.y < margY || stB.y > 1.0-margY) {
+  //   color = vec3(bgc.r, bgc.g, bgc.b);
+  // }
   stPaper.y *= 3.0;
   float sine = sin(st.y*1200.0);
   float sinOff = map(noise(stPaper.xy*100.0), 0.0, 1.0, -0.6, 0.6);

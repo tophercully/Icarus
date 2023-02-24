@@ -2,6 +2,8 @@ w= 1600
 h = 2000
 marg = w*0.025
 
+willReadFrequently = true
+
 let shade;
 function preload() {
   shade = loadShader("shader.vert", "shader.frag");
@@ -17,8 +19,13 @@ pxSize = url.searchParams.get('size')
 
 
 //declarations
+shapes = []
 
 //parameters
+splitDens = randomInt(5, 50)
+numShapes = splitDens*2//map_range(splitDens, 5, 50, 10, 50)
+
+padding = randomVal(4, 100) //minimum 4
 
 function setup() {
   var isMobile = false; //initiate as false
@@ -49,22 +56,46 @@ if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine
 
 function draw() {
   background(bgc)
+  c.background('black')
   p.background(bgc)
+  
+  //declare safe space
+  c.fill('white')
+  c.circle(w/2, h/2, w*0.9)
+  // concentricGuide(randomVal(0, w), randomVal(0, h))
+
+  //border weight
+  c.stroke('black')
+  c.strokeWeight(40)
+  // c.line(w/2, 0, w/2, h)
+  c.noFill()
+  c.rect(0, 0, w, h)
 
   //Sketch
   // try drawing an image, placing colored areas 
   // only where there is white, and retracting each 
   // until the image is white (not just distance)
-  for(let j = 0; j < 10; j++) {
-    center = createVector(randomVal(0, w), randomVal(0, h))
-    for(let i = 0; i < 20; i++) {
-      maxOff = 500
-      xOff = randomVal(-maxOff, maxOff)/2
-      yOff = randomVal(-maxOff, maxOff)/2
-      
-      limitOrb(center.x+xOff, center.y+yOff, randomVal(100, maxOff*2), 500)
-    }
+
+  //Padding weight, minimum 4
+  c.strokeWeight(padding)
+  for(let i = 0; i < 0; i++) {
+    c.line(randomVal(0, w), randomVal(0, h), randomVal(0, w), randomVal(0, h))
+    c.circle(randomVal(-w/2, w*1.5), randomVal(-h/2, h*1.5), randomVal(300, h))
   }
+  c.beginShape()
+  for(let i = 0; i < splitDens; i++) {
+    c.curveVertex(randomVal(-w*0.25, w*1.25), randomVal(-h*0.25, h*1.25))
+  }
+  c.endShape(CLOSE)
+  
+
+  placer()
+  for(let i = 0; i < numShapes; i++) {
+    shapes[i].show()
+  }
+  
+
+  
   
 
   //Post processing

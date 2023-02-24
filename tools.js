@@ -175,7 +175,7 @@ function limitSpread(x, y, r, trueR) {
     tries = 0
     while(dist > trueR) {
       rad -= 1
-      here = ptFromAng(x, y, i, rad)
+      here = ptFromAng(x, y, i+angOff, rad)
       dist = here.dist(center)
       tries++
       if(tries > trueR) {
@@ -186,4 +186,137 @@ function limitSpread(x, y, r, trueR) {
   }
   p.endShape(CLOSE)
   p.pop()
+}
+
+function spreader(x, y, r, trueR) {
+  trueR /= 2
+  phase = randomVal(0, 10000000)
+  phaseB = randomVal(0, 10000000)
+
+  p.push()
+  p.noFill()
+  col = randColor()
+  alph = randomVal(0.025, 0.2)
+  p.fill(chroma(col).alpha(alph).hex())
+  p.stroke(chroma(col).alpha(0.75).darken(2).hex())
+  p.strokeWeight(0.3)
+  p.beginShape()
+
+  noiseMax = randomVal(5, 30)
+  angNS = randomVal(0.1, 0.5)
+  for(let i = 0; i < 360; i+=1) {
+    xOff = map(cos(i), -1, 1, 0, noiseMax)
+    yOff = map(sin(i), -1, 1, 0, noiseMax)
+    rad = map(noise(xOff, yOff, phase), 0, 1, 0, r/2)//r/2
+    angOff = map(noise(xOff*angNS, yOff*angNS, phaseB), 0, 1, -360, 360)
+
+    here = ptFromAng(x, y, i+angOff, rad)
+    colCheckBase = p.get(here.x, here.y)
+    colCheck = colCheckBase[0]
+    tries = 0
+    while(colCheck > 100) {
+      rad += 10
+      here = ptFromAng(x, y, i+angOff, rad)
+      dist = here.dist(center)
+      colcheckBase = c.get(here.x, here.y)
+      colCheck = colCheckBase[0]
+      console.log(colCheck)
+      tries++
+      if(colCheck == 0) {
+        return
+      }
+    }
+    p.vertex(here.x, here.y)
+  }
+  p.endShape(CLOSE)
+  p.pop()
+}
+
+function basicSpreader(x, y, r) {
+  p.strokeWeight(2)
+  p.beginShape()
+  p.fill(randColor())
+  for(let i = 0 ; i  < 360; i++) {
+    rad = 0
+    tripped = false
+    while(tripped == false) {
+      rad += 1
+      here = ptFromAng(x, y, i, rad)
+      colBase = c.get(here.x, here.y)
+      colCheck = colBase[0]
+      if(colCheck == 0) {
+        tripped = true
+        rad -= 10
+        here = ptFromAng(x, y, i, rad)
+      }
+    }
+
+    p.vertex(here.x, here.y)
+  }
+  p.endShape(CLOSE)
+}
+
+function limitedSpreader(x, y) {
+  p.strokeWeight(randomVal(0, 1))
+  p.stroke(randColor())
+  p.beginShape()
+  noiseMax = 50
+  phase = randomVal(0, 100000000)
+  phaseB = randomVal(0, 100000000)
+  angNS = randomVal(0.1, 0.5)
+  p.fill(chroma(randColor()).alpha(1).hex())
+  for(let i = 0 ; i < 360; i+=5) {
+    xOff = map(cos(i), -1, 1, 0, noiseMax)
+    yOff = map(sin(i), -1, 1, 0, noiseMax)
+    rad = 0
+    radMod = map(noise(i*0.05, phase), 0, 1, 0.95, 1)
+    tripped = false
+    while(tripped == false) {
+      rad += 1
+      here = ptFromAng(x, y, i, rad)
+      colBase = c.get(here.x, here.y)
+      colCheck = colBase[0]
+      if(colCheck == 0) {
+        tripped = true
+        rad -= 0
+        here = ptFromAng(x, y, i, rad)
+      }
+    }
+    noiseHere = ptFromAng(x, y, i, rad*radMod)
+    p.vertex(noiseHere.x, noiseHere.y)
+  }
+  p.endShape(CLOSE)
+}
+
+function placer() {
+  numPlaced = 0
+  tries = 0
+  while(numPlaced < numShapes) {
+    here = createVector(Math.round(randomVal(0, w)), Math.round(randomVal(0, h)))
+    samp = c.get(here.x, here.y)
+    if(samp[0] == 255) {
+      shapes[numPlaced] = new Shape(here.x, here.y)
+      numPlaced++
+    }
+    tries++
+    if(tries > 1000) {
+      return
+    }
+  }
+}
+
+function concentricGuide(x, y) {
+  numRings = 5//randomInt(3, 15)
+  for(let i = 0; i < numRings; i++) {
+    if(i%2 == 0) {
+      col = 'white'
+    } else {
+      col = 'black'
+    }
+
+    rad = map(i, 0, numRings, h*1.75, 0)
+    c.fill(col)
+    c.noStroke()
+    c.circle(x, y, rad)
+  }
 }

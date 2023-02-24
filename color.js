@@ -211,7 +211,7 @@ const palNames = [
 
 //Palette parameters
 palNum = randomInt(0, pals.length-1);
-pal = vint//pals[palNum];
+pal = pals[palNum];
 palName = palNames[palNum];
 
 console.log(palName)
@@ -240,7 +240,7 @@ for (let i = 0; i < pal.length-1; i++) {
 }
 
 //Combine palettes and shuffle that full palette
-fullPal = [].concat(pal, darkerPal, lighterPal);
+fullPal = [].concat(pal, darkerPal, lighterPal, warmerPal, coolerPal);
 truePal = shuff(fullPal);
 
 //Pass our palette back to the CSS spinner
