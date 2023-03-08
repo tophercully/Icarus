@@ -9,7 +9,11 @@ bgCols = [
   "#212122", //ink black
   "#1B1B1B", //eerie black
   "#242124", //raisin black
+  "#A4C495", //Lauren
+  "#E56060", //Gemma
 ];
+
+
 
 bgNames = [
   "SeaShell",
@@ -24,7 +28,7 @@ bgNames = [
   "Raisin Black",
 ];
 //Background color parameters
-bgNum = randomInt(0, 5)//randomInt(0, 9);
+bgNum = 4//randomInt(0, 5)//randomInt(0, 9);
 bgc = bgCols[bgNum];
 bgName = bgNames[bgNum];
 
@@ -153,6 +157,8 @@ const oilPastel = [
  '#ECEDE7',
 ]
 
+const blackPal = ['black']
+
  const seaFoam = [
  "#22577a", "#38a3a5", "#57cc99", "#80ed99", "#c7f9cc", "#f2f9e8", "#f9f9f9"
 ] //credit Wouter Missler
@@ -192,6 +198,14 @@ const wildberry = [
   '#fff0e0',
 ]
 
+const blockA = ["#E4E7E0","#F0829D","#428E8A","#F4E8AE","#109BC4","#1C1E1B"]
+
+const blockB = ["#1D9042","#212322","#0C8ABB","#E2E5DE","#C77B99","#E97D48","#DDC267"]
+
+const achro = [
+  'black',
+  'white'
+]
 const pals = [source, shepard, toyBlocks, mcWoot, soft, jazzy, ceramic, oilPastel, mcNay, oKeefe, flowerMarket, oilPaint];
 
 const palNames = [
@@ -211,7 +225,7 @@ const palNames = [
 
 //Palette parameters
 palNum = randomInt(0, pals.length-1);
-pal = pals[palNum];
+pal = blockB//pals[palNum];
 palName = palNames[palNum];
 
 console.log(palName)
@@ -241,7 +255,7 @@ for (let i = 0; i < pal.length-1; i++) {
 
 //Combine palettes and shuffle that full palette
 fullPal = [].concat(pal, darkerPal, lighterPal, warmerPal, coolerPal);
-truePal = shuff(fullPal);
+truePal = shuff(pal, achro);
 
 //Pass our palette back to the CSS spinner
 let root = document.documentElement;

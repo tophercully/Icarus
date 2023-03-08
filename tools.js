@@ -30,6 +30,20 @@ function setLineDash(list) {
   drawingContext.setLineDash(list);
 }
 
+function midpoint(xA, yA, xB, yB, int) {
+  x = map_range(int, 0, 1, xA, xB)
+  y = map_range(int, 0, 1, yA, yB)
+  pt = createVector(x, y)
+  return pt
+}
+
+const chars = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+
+function randChar() {
+  x = chars[randomInt(0, chars.length-1)]
+  return x
+}
+
 function keyTyped() {
   if (key === "s" || key === "S") {
     save("img.png");
@@ -257,19 +271,20 @@ function basicSpreader(x, y, r) {
 }
 
 function limitedSpreader(x, y) {
-  p.strokeWeight(randomVal(0, 1))
-  p.stroke(randColor())
+  p.strokeWeight(1)
+  p.stroke(frameCol)
   p.beginShape()
   noiseMax = 50
   phase = randomVal(0, 100000000)
   phaseB = randomVal(0, 100000000)
   angNS = randomVal(0.1, 0.5)
-  p.fill(chroma(randColor()).alpha(1).hex())
+
   for(let i = 0 ; i < 360; i+=5) {
     xOff = map(cos(i), -1, 1, 0, noiseMax)
     yOff = map(sin(i), -1, 1, 0, noiseMax)
     rad = 0
-    radMod = map(noise(i*0.05, phase), 0, 1, 0.95, 1)
+    radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
+    edgeNoise = map(noise(i*0.05, phase), 0, 1, 0.98, 1)
     tripped = false
     while(tripped == false) {
       rad += 1
@@ -282,8 +297,92 @@ function limitedSpreader(x, y) {
         here = ptFromAng(x, y, i, rad)
       }
     }
-    noiseHere = ptFromAng(x, y, i, rad*radMod)
+    noiseHere = ptFromAng(x, y, i, (rad*edgeNoise))
     p.vertex(noiseHere.x, noiseHere.y)
+  }
+  p.endShape(CLOSE)
+}
+
+function limitedRays(x, y) {
+  p.strokeWeight(1)
+  p.stroke(frameCol)
+  p.beginShape()
+  numRays = randomInt(3, 20)
+  rayMidPt = randomVal(-1, 1)
+  depth = randomVal(0, 0.9)
+  noiseMax = 50
+  phase = randomVal(0, 100000000)
+  phaseB = randomVal(0, 100000000)
+  angNS = randomVal(0.1, 0.5)
+ 
+  for(let i = 0 ; i < 360; i+=5) {
+    sine = sin(i*numRays)
+    xOff = map(cos(i), -1, 1, 0, noiseMax)
+    yOff = map(sin(i), -1, 1, 0, noiseMax)
+    rad = 0
+    radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
+    edgeNoise = map(noise(i*0.05, phase), 0, 1, 0.98, 1)
+    tripped = false
+    while(tripped == false) {
+      rad += 1
+      here = ptFromAng(x, y, i, rad)
+      colBase = c.get(here.x, here.y)
+      colCheck = colBase[0]
+      if(colCheck == 0) {
+        tripped = true
+        rad -= 0
+        here = ptFromAng(x, y, i, rad)
+      }
+    }
+    noiseHere = ptFromAng(x, y, i, (rad*edgeNoise))
+    if(sine < rayMidPt) {
+      p.vertex(noiseHere.x, noiseHere.y)
+    } else {
+      thisPt = midpoint(x, y, noiseHere.x, noiseHere.y, depth)
+      p.vertex(thisPt.x, thisPt.y)
+    }
+    
+  }
+  p.endShape(CLOSE)
+}
+
+function limitedFlower(x, y) {
+  p.strokeWeight(1)
+  p.stroke(frameCol)
+  p.beginShape()
+  numPetals = randomInt(3, 10)
+  rayMidPt = randomVal(-1, 1)
+  depth = randomVal(0, 0.9)
+  noiseMax = 50
+  phase = randomVal(0, 100000000)
+  phaseB = randomVal(0, 100000000)
+  angNS = randomVal(0.1, 0.5)
+  
+  for(let i = 0 ; i < 360; i++) {
+    flowerMod = map(sin(i*numPetals), -1, 1, 0, 1)
+    flowMod = map(pow(flowerMod, 0.1), 0, pow(1, 0.1), 0, 1)
+    xOff = map(cos(i), -1, 1, 0, noiseMax)
+    yOff = map(sin(i), -1, 1, 0, noiseMax)
+    rad = 0
+    radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
+    edgeNoise = map(noise(i*0.05, phase), 0, 1, 0.98, 1)
+    tripped = false
+    while(tripped == false) {
+      rad += 1
+      here = ptFromAng(x, y, i, rad)
+      colBase = c.get(here.x, here.y)
+      colCheck = colBase[0]
+      if(colCheck == 0) {
+        tripped = true
+        rad -= 0
+        here = ptFromAng(x, y, i, rad)
+      }
+    }
+    noiseHere = ptFromAng(x, y, i, (rad*edgeNoise)*flowMod)
+    
+    p.vertex(noiseHere.x, noiseHere.y)
+    
+    
   }
   p.endShape(CLOSE)
 }
@@ -291,32 +390,184 @@ function limitedSpreader(x, y) {
 function placer() {
   numPlaced = 0
   tries = 0
+  samp = []
   while(numPlaced < numShapes) {
-    here = createVector(Math.round(randomVal(0, w)), Math.round(randomVal(0, h)))
+    here = createVector(randomVal(0, w), randomVal(0, h))//ptFromAng(w/2, h/2, randomVal(0, 360), randomVal(0, radNeeded))
     samp = c.get(here.x, here.y)
     if(samp[0] == 255) {
-      shapes[numPlaced] = new Shape(here.x, here.y)
+      shapes[numPlaced] = new Shape(here.x, here.y, numPlaced)
       numPlaced++
     }
     tries++
-    if(tries > 1000) {
+    if(tries > 10000) {
+      numShapes = numPlaced
       return
     }
   }
 }
 
+function slicer() {
+  c.beginShape()
+  for(let i = 0; i < splitDens; i++) {
+    
+    c.curveVertex(randomVal(-w*0.25, w*1.25), randomVal(-h*0.25, h*1.25))
+  }
+  c.endShape(CLOSE)
+}
+
+function bottomUp() {
+  c.strokeWeight(splitWt)
+  c.beginShape()
+  for(let i = 0; i < centerDens+1; i++) {
+    y = map(i, 0, centerDens, h, 0)
+    c.curveVertex(randomVal(-w*0.25, w*1.25), y)
+  }
+  c.endShape()
+}
+
+function partSlicer() {
+  for(let i = 0; i < splitDens; i++) {
+    c.line(randomVal(0, w), randomVal(0, h), randomVal(0, w), randomVal(0, h))
+  }
+}
+
 function concentricGuide(x, y) {
-  numRings = 5//randomInt(3, 15)
+  numRings = randomInt(3, 15)
   for(let i = 0; i < numRings; i++) {
-    if(i%2 == 0) {
-      col = 'white'
-    } else {
-      col = 'black'
-    }
+    
 
     rad = map(i, 0, numRings, h*1.75, 0)
-    c.fill(col)
-    c.noStroke()
+    c.noFill()
+    c.strokeWeight(padding)
+    c.stroke('black')
     c.circle(x, y, rad)
+  }
+}
+
+function cSpiral(x, y, r) {
+  dens = 1000
+  numSegs = randomInt(5, 30)
+  sz = 100
+  spiralIntensity = randomVal(-180, 180)
+  angOff = randomVal(0, 360)
+  for(let j = 0; j < dens; j++) {
+    szMod = randomVal(0.25, 1)//map(j, 0, dens, 1, 0.5)
+    rad = map(j, 0, dens, 0, r/2)
+    diam = TWO_PI*(rad/4)
+    sz = (diam/numSegs)//*szMod
+    angOff += spiralIntensity/dens
+    for(let i = 0; i < 360; i+=360/numSegs) {
+      here = ptFromAng(x, y, i+angOff, rad)
+      c.circle(here.x, here.y, sz)
+    }
+  }
+  
+}
+
+function randAlpha() {
+  c.strokeWeight(100)
+  c.stroke('black')
+  c.rectMode(CENTER)
+  c.textAlign(CENTER, CENTER)
+  here = createVector(randomVal(0, w), randomVal(0, h))
+  c.textSize(randomVal(100, 1600))
+  theChar = randChar()
+  console.log(theChar)
+  c.text(theChar, here.x, here.y)
+}
+
+function shaper(x, y, r) {
+  numSides = randomInt(3, 8)
+  startAng = randomVal(0, 360)
+  c.fill('white')
+  c.noStroke()
+  c.beginShape()
+  for(let i = 0; i < 360; i+=360/numSides) {
+    here = ptFromAng(x, y, i+startAng, r/2)
+    c.vertex(here.x, here.y)
+  }
+  c.endShape(CLOSE)
+}
+
+function shaperGrid() {
+  cols = 1//randomInt(1, 10)
+  rows = 1//randomInt(1, 10)
+  cellW = (w-(marg*2))/cols
+  cellH = (h-(marg*2))/rows
+  sz = min([cellW, cellH])*0.9
+  for(let y = 0; y < rows; y++) {
+    for(let x = 0; x < cols; x++) {
+      shaper(marg+x*cellW+cellW/2, marg+y*cellH+cellH/2, sz)
+    }
+  }
+}
+
+function radGrad() {
+  lCol = chroma(bgc).brighten(0.5).hex()
+  dCol = chroma(bgc).darken(0.5).hex()
+  for(let i = 0; i < w; i++) {
+    r = map(i, 0, w, h*1.3, 0)
+    num = map(i, 0, w, 0, 1)
+    col = chroma.mix(dCol, lCol, num).hex()
+    p.fill(col)
+    p.noStroke()
+    p.circle(w/2, h/2, r)
+  }
+}
+
+function radialShapes(x, y) {
+
+  for(let i = 0; i<360; i+= 360/30) {
+    thisRad = randomVal(10, 300)
+    here = ptFromAng(x, y, i, (randomVal(0, h)))
+    there = ptFromAng(x, y, i, (randomVal(0, h)))
+    val = randomVal(0, 255)
+    p.stroke(chroma(val, val, val).alpha(0.1).hex())
+    p.strokeWeight(randomVal(0, 10))
+    p.line(here.x, here.y, there.x, there.y)
+  }
+}
+
+function vGrad() {
+  cellH = h-(marg*2)
+  cellW = w-(marg*2)
+  theCol = truePal[0]
+  cols = [theCol, bgc] 
+  shuffCols = shuff(cols)
+  for(let i = 0; i < cellH; i++) {
+    n = map(i, 0, cellH, 0, 1)
+    col = chroma.mix(shuffCols[0], shuffCols[1], n).alpha(0.5).hex()
+    p.stroke(col)
+    p.strokeWeight(1)
+    p.line(marg, marg+i, w-marg, marg+i)
+  }
+}
+
+function bgRays(x, y) {
+  num = randomInt(5, 30)
+  startAng = randomVal(0, 360)
+  rad = radNeeded
+  rayMidPt = randomVal(-0.9, 0)
+  val = 255
+  c.fill(255)
+  c.noStroke()
+  c.strokeWeight(10)
+  c.beginShape()
+  for(let i = 0; i < 360; i++) {
+    sine = sin(i*num)
+    if(sine < rayMidPt) {
+      here = ptFromAng(x, y, i+startAng, rad)
+    } else {
+      here = ptFromAng(x, y, i+startAng, 0)
+    }
+    c.vertex(here.x, here.y)
+  }
+  c.endShape(CLOSE)
+}
+
+function bgBlots() {
+  p.fill(truePal[0])
+  for(let i = 0; i < 10; i++) {
+    p.circle(randomVal(0, w), randomVal(0, h), randomVal(200, 500))
   }
 }
