@@ -225,7 +225,7 @@ const palNames = [
 
 //Palette parameters
 palNum = randomInt(0, pals.length-1);
-pal = blockB//pals[palNum];
+pal = vint//pals[palNum];
 palName = palNames[palNum];
 
 console.log(palName)

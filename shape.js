@@ -1,11 +1,12 @@
 class Shape {
-    constructor(x, y, numPlaced) {
+    constructor(x, y) {
         this.x = x
         this.y = y 
-        this.numPlaced = numPlaced
+        this.distFromCenter = center.dist(createVector(this.x, this.y))
+
     }
     show(colorChance) {
-        this.colorchance = 1
+        this.colorChance = 0.9
         this.colCheck = randomVal(0, 1)
         this.center = createVector(center.x, center.y)
         this.here = createVector(this.x, this.y)
@@ -19,9 +20,9 @@ class Shape {
                 this.col = achro[randomInt(0, achro.length-1)]
             }
         } else {
-            
-            this.alph = map(this.dis, shapeRad/2, radNeeded, 0.75, 0.5)
-            this.col = chroma(randColor()).alpha(this.alph).desaturate((1-this.alph)*3).hex()
+            this.val = randomVal(0, 255)
+            this.alph = map(this.dis, shapeRad/2, radNeeded, 1, 0.25)
+            this.col = chroma(this.val, this.val, this.val).alpha(this.alph).hex()
         }
         
         

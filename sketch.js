@@ -20,16 +20,17 @@ pxSize = url.searchParams.get('size')
 
 //declarations
 shapes = []
+dists = []
 
 //parameters
-shapeRad = w*randomVal(0.333, 0.6)
-splitDens = 40//randomInt(5, 200)
+shapeRad = w*randomVal(0.15, 0.4)//w*0.15//randomVal(0.2, 0.6)
+splitDens = randomInt(20, 50)
 centerDens = 10
-numShapes = splitDens*10//map_range(splitDens, 5, 50, 10, 50)
+numShapes = 400//splitDens*10//map_range(splitDens, 5, 50, 10, 50)
 
 colorChance = 0.5
 
-padding = 5//randomVal(4, 100) //minimum 3
+padding = randomVal(5, 20) //minimum 3
 splitWt = 100
 
 
@@ -56,9 +57,9 @@ if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine
   p.angleMode(DEGREES)
   c.angleMode(DEGREES)
   ro.angleMode(DEGREES)
-  noLoop()
-  p.noLoop()
-  c.noLoop()
+  // noLoop()
+  // p.noLoop()
+  // c.noLoop()
 
   center = createVector(randomVal(marg+(shapeRad/2), (w-marg)-(shapeRad/2)), randomVal(marg+(shapeRad/2), (h-marg)-(shapeRad/2)))
   tl = createVector(0, 0)
@@ -69,8 +70,13 @@ if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine
   radNeeded = max(distances)
 }
 
+seedA = randomVal(0, 10)
+seedB = randomVal(0, 10)
+
 function draw() {
-  background(bgc)
+
+  if(frameCount==1){
+    background(bgc)
   c.background('black')
   p.background(bgc)
   // radGrad()
@@ -90,8 +96,9 @@ function draw() {
   // c.text('test', w/2, h/2)
   
   // cSpiral(center.x, center.y, radNeeded*2)
-  bgRays(center.x, center.y)
-  // c.circle(w/2, h/2, shapeRad)
+  // bgRays(center.x, center.y)
+  cables()
+  // c.circle(center.x, center.y, w/2)
   shaper(center.x, center.y, shapeRad)
   // shaperGrid()
   // c.rect(w/2, h/2, w, h)
@@ -101,10 +108,10 @@ function draw() {
 
   //border weight
   c.stroke('black')
-  c.strokeWeight(0)
+  c.strokeWeight(150)
   // c.line(w/2, 0, w/2, h)
   c.noFill()
-  c.rect(w/2, h/2, w-50, h-50)
+  c.rect(w/2, h/2, w-150, h-150)
 
   //Sketch
   // try drawing an image, placing colored areas 
@@ -120,10 +127,21 @@ function draw() {
   }
   slicer()
   // partSlicer()
-  
+  // circleSlicer()
   placer()
-  for(let i = 0; i < numShapes; i++) {
-    shapes[i].show(0.9)
+  // for(let i = 0; i < numShapes; i++) {
+  //   mycomparator(shapes[i+1], shapes[i])
+  // }
+}
+  perFrame = 2
+  if(frameCount < numShapes/perFrame) {
+    
+    
+    for(let i = 0; i < perFrame; i++) {
+      shapes[numShapes-((frameCount*perFrame)+i)].show(0.9)
+    // console.log(shapes[frameCount].distFromCenter)
+    }
+    
   }
 
   
@@ -139,9 +157,9 @@ function draw() {
    shade.setUniform("p", p);
    shade.setUniform("c", c);
    shade.setUniform("ro", ro);
-
-   shade.setUniform("seed", randomVal(0, 10));
-   shade.setUniform("seedB", randomVal(0, 10));
+   shade.setUniform("center", [center.x/w, center.y/h])
+   shade.setUniform("seed", seedA);
+   shade.setUniform("seedB", seedB);
    shade.setUniform("marg", map(marg, 0, w, 0, 1));
    shade.setUniform("bgc", [
      bgc.levels[0] / 255,
@@ -150,6 +168,8 @@ function draw() {
    ]);
 
    rect(0, 0, w, h)
-
-   fxpreview()
+   if(frameCount == numShapes) {
+    fxpreview()
+   }
+   
 }
