@@ -1,6 +1,6 @@
 w= 1600
 h = 2000
-marg = w*0.15
+marg = w*randomVal(0.1, 0.2)
 
 willReadFrequently = true
 
@@ -23,15 +23,18 @@ shapes = []
 dists = []
 
 //parameters
-shapeRad = w*randomVal(0.15, 0.4)//w*0.15//randomVal(0.2, 0.6)
+shapeRad = w*randomVal(0.05, 0.2)//randomVal(0.15, 0.4)//w*0.15//randomVal(0.2, 0.6)
+cableSize = randomVal(15, 40)
 splitDens = randomInt(20, 50)
 centerDens = 10
-numShapes = 400//splitDens*10//map_range(splitDens, 5, 50, 10, 50)
-
+numShapes = splitDens*10//splitDens*10//map_range(splitDens, 5, 50, 10, 50)
+vel = randomVal(1.0, 1.3)
 colorChance = 0.5
-
-padding = randomVal(5, 20) //minimum 3
+bgMode = randomInt(1, 2)
+cutMode = randomInt(1, 3)
+padding = 5//randomVal(5, 20) //minimum 3
 splitWt = 100
+
 
 
 function setup() {
@@ -68,6 +71,8 @@ if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine
   bl = createVector(0, h)
   distances = [center.dist(tl), center.dist(tr), center.dist(br), center.dist(bl),]
   radNeeded = max(distances)
+  dir = angBetween(center.x, center.y, w/2, h/2)
+  sourceLoc = ptFromAng(center.x, center.y, dir, h*vel)
 }
 
 seedA = randomVal(0, 10)
@@ -79,8 +84,18 @@ function draw() {
     background(bgc)
   c.background('black')
   p.background(bgc)
-  // radGrad()
-  vGrad()
+  if(bgMode == 1) {
+    radGrad()
+  } else if(bgMode == 2) {
+    vGrad()
+  }
+  
+  p.rectMode(CENTER)
+  p.noFill()
+  p.stroke(bgc)
+  p.strokeWeight(marg*2)
+  p.rect(w/2, h/2, w, h)
+  
   //center rectangles
   c.rectMode(CENTER)
   //declare safe space
@@ -99,7 +114,7 @@ function draw() {
   // bgRays(center.x, center.y)
   cables()
   // c.circle(center.x, center.y, w/2)
-  shaper(center.x, center.y, shapeRad)
+  
   // shaperGrid()
   // c.rect(w/2, h/2, w, h)
   // concentricGuide(randomVal(0, w), randomVal(0, h))
@@ -108,10 +123,10 @@ function draw() {
 
   //border weight
   c.stroke('black')
-  c.strokeWeight(150)
+  c.strokeWeight(marg*0.666)
   // c.line(w/2, 0, w/2, h)
   c.noFill()
-  c.rect(w/2, h/2, w-150, h-150)
+  c.rect(w/2, h/2, w-marg*0.666, h-marg*0.666)
 
   //Sketch
   // try drawing an image, placing colored areas 
@@ -125,9 +140,17 @@ function draw() {
     c.line(randomVal(0, w), randomVal(0, h), randomVal(0, w), randomVal(0, h))
     c.circle(randomVal(-w/2, w*1.5), randomVal(-h/2, h*1.5), randomVal(300, h))
   }
-  slicer()
+  if(cutMode == 1) {
+    slicer()
+  } else if(cutMode == 2) {
+    partSlicer()
+  } else {
+    circleSlicer()
+  }
+  // slicer()
   // partSlicer()
-  // circleSlicer()
+  circleSlicer()
+  shaper(center.x, center.y, shapeRad)
   placer()
   // for(let i = 0; i < numShapes; i++) {
   //   mycomparator(shapes[i+1], shapes[i])
@@ -138,7 +161,7 @@ function draw() {
     
     
     for(let i = 0; i < perFrame; i++) {
-      shapes[numShapes-((frameCount*perFrame)+i)].show(0.9)
+      shapes[((frameCount*perFrame)+i)].show(0.9)
     // console.log(shapes[frameCount].distFromCenter)
     }
     
@@ -150,7 +173,7 @@ function draw() {
   
 
   //Post processing
-   copy(p, 0, 0, w, h, 0, 0, w, h)
+  //  copy(p, 0, 0, w, h, 0, 0, w, h)
    bgc = color(bgc)
    shader(shade)
    shade.setUniform("u_resolution", [w, h]);

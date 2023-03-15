@@ -198,34 +198,47 @@ const wildberry = [
   '#fff0e0',
 ]
 
+
+
 const blockA = ["#E4E7E0","#F0829D","#428E8A","#F4E8AE","#109BC4","#1C1E1B"]
 
 const blockB = ["#1D9042","#212322","#0C8ABB","#E2E5DE","#C77B99","#E97D48","#DDC267"]
+
+const blockC = ["#1F1E23","#0068C1","#E7CF63","#F3669A","#D6D8D5"]
+
+const burn = ["#00b4e2","#fd4f92","#ff7b89","#ffa070","#ffd403"]
+
+const scifi = ["#4ea459","#47bc89","#38928a","#e2a48e","#c35548","#33778a","#8bd6e8","#11120a","#f8ddc3","#a7d0c0"]
+
+const yeller = ["#29221c","#8e3b2d","#b27469","#f49f10","#fedb49","#e7d0c0","#ceb29a","#c9ced1","#b0b8bb","#646d4e"]
+
+const overlook = ["#3d4d20","#ad0b08","#1d5473","#798b97","#edd2b7","#b76439","#d2955f","#282723"]
+
+const helmetFace = ["#617a5c","#a3ab86","#accbf9","#f3c9f4","#030305","#cfd9e3","#e3e4e8"]
+
 
 const achro = [
   'black',
   'white'
 ]
-const pals = [source, shepard, toyBlocks, mcWoot, soft, jazzy, ceramic, oilPastel, mcNay, oKeefe, flowerMarket, oilPaint];
+const pals = [source, shepard, bau, elliot, vint, wildberry, burn, scifi, yeller, helmetFace];
 
 const palNames = [
   "Source",
   "Commander Shepard",
-  "Toy Blocks",
-  "McWoot",
-  "Soft",
-  "Jazzy",
-  "Ceramic",
-  "Oil Pastel",
-  "McNay",
-  "O'Keefe",
-  "Flower Market",
-  "Oil Paint"
+  "Bau",
+  "Elliot",
+  "Vint",
+  "Wildberry",
+  "Burn",
+  "SciFi",
+  "Yeller",
+  "HelmetFace",
 ];
 
 //Palette parameters
 palNum = randomInt(0, pals.length-1);
-pal = vint//pals[palNum];
+pal = pals[palNum];
 palName = palNames[palNum];
 
 console.log(palName)

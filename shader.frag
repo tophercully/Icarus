@@ -113,21 +113,23 @@ void main() {
   float zoom = 0.8;
   float pxDis = distance(stExpand.xy, center.xy);
   float pushMult = map(pxDis, 0.0, 1.0, 0.0, 0.1);
-  float spreadDis = map(pxDis, 0.0, 1.0, 0.02, 0.4);
+  float spreadDis = map(pxDis, 0.0, 0.5, 0.0, 0.02);
   float spreadInc = spreadDis/12.0;
-  st = (st1 - center) * (1.0+spreadInc) + center;
-  st1 = (st1 - center) * (1.0+(spreadInc*2.0)) + center;
-  st2 = (st2 - center) * (1.0+(spreadInc*3.0)) + center;
-  st3 = (st3 - center) * (1.0+(spreadInc*4.0)) + center;
-  st4 = (st4 - center) * (1.0+(spreadInc*5.0)) + center;
-  st5 = (st5 - center) * (1.0+(spreadInc*6.0)) + center;
+  st = (st - center) * (1.0+spreadInc*13.0) + center;
+  st1 = (st1 - center) * (1.0+(spreadInc*12.0)) + center;
+  st2 = (st2 - center) * (1.0+(spreadInc*11.0)) + center;
+  st3 = (st3 - center) * (1.0+(spreadInc*10.0)) + center;
+  st4 = (st4 - center) * (1.0+(spreadInc*9.0)) + center;
+  st5 = (st5 - center) * (1.0+(spreadInc*8.0)) + center;
   st6 = (st6 - center) * (1.0+(spreadInc*7.0)) + center;
-  st7 = (st7 - center) * (1.0+(spreadInc*8.0)) + center;
-  st8 = (st8 - center) * (1.0+(spreadInc*9.0)) + center;
-  st9 = (st9 - center) * (1.0+(spreadInc*10.0)) + center;
-  st10 = (st10 - center) * (1.0+(spreadInc*11.0)) + center;
-  st11 = (st11 - center) * (1.0+(spreadInc*12.0)) + center;
-  st12 = (st12 - center) * (1.0+(spreadInc*13.0)) + center;
+  st7 = (st7 - center) * (1.0+(spreadInc*6.0)) + center;
+  st8 = (st8 - center) * (1.0+(spreadInc*5.0)) + center;
+  st9 = (st9 - center) * (1.0+(spreadInc*4.0)) + center;
+  st10 = (st10 - center) * (1.0+(spreadInc*3.0)) + center;
+  st11 = (st11 - center) * (1.0+(spreadInc*2.0)) + center;
+  st12 = (st12 - center) * (1.0+(spreadInc*1.0)) + center;
+
+  // st = (st - center) * (1.0+(spreadInc*1.0)) + center;
   
 
 
@@ -190,7 +192,7 @@ void main() {
     colorA = mix(colorA.rgb, texSpreadK.rgb, mixAmt);
     colorA = mix(colorA.rgb, texSpreadL.rgb, mixAmt);
     colorA = mix(colorA.rgb, texP.rgb, 0.2);
-    color = mix(colorA.rgb, vec3(1.0, 1.0, 1.0), 0.2);
+    color = mix(colorA.rgb, vec3(1.0, 1.0, 1.0), 0.1);
     // color = colorA;
   } else {
     color = texP.rgb;

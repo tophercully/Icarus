@@ -277,13 +277,14 @@ function basicSpreader(x, y, r) {
 function limitedSpreader(x, y) {
   p.strokeWeight(1)
   p.stroke(frameCol)
+  p.noStroke()
   p.beginShape()
   noiseMax = 50
   phase = randomVal(0, 100000000)
   phaseB = randomVal(0, 100000000)
   angNS = randomVal(0.1, 0.5)
 
-  for(let i = 0 ; i < 360; i+=10) {
+  for(let i = 0 ; i < 360; i+=20) {
     xOff = map(cos(i), -1, 1, 0, noiseMax)
     yOff = map(sin(i), -1, 1, 0, noiseMax)
     rad = 0
@@ -310,6 +311,7 @@ function limitedSpreader(x, y) {
 function limitedLines(x, y) {
   p.strokeWeight(3)
   p.stroke(randColor())
+  p.noStroke()
   p.beginShape()
   noiseMax = 50
   phase = randomVal(0, 100000000)
@@ -358,6 +360,7 @@ function limitedLines(x, y) {
 function limitedRays(x, y) {
   p.strokeWeight(1)
   p.stroke(frameCol)
+  p.noStroke()
   p.beginShape()
   numRays = randomInt(3, 20)
   rayMidPt = randomVal(-1, 1)
@@ -401,6 +404,7 @@ function limitedRays(x, y) {
 function limitedFlower(x, y) {
   p.strokeWeight(1)
   p.stroke(frameCol)
+  p.noStroke()
   p.beginShape()
   numPetals = randomInt(3, 10)
   rayMidPt = randomVal(-1, 1)
@@ -445,8 +449,8 @@ function placer() {
   samp = []
   ang = 0
   while(numPlaced < numShapes) {
-    ang+=5
-    radNow = map(pow(numPlaced, 2), 0, pow(numShapes, 2), randomVal(0, shapeRad/2), radNeeded)
+    ang+=randomVal(-50, 50)
+    radNow = map(pow(numPlaced, 1.5), 0, pow(numShapes, 1.5), randomVal(0, shapeRad/2), radNeeded)
     here = ptFromAng(center.x, center.y, ang, radNow)
     samp = c.get(here.x, here.y)
     if(samp[0] == 255) {
@@ -464,8 +468,10 @@ function placer() {
 function slicer() {
   c.beginShape()
   for(let i = 0; i < splitDens; i++) {
-    
-    c.curveVertex(randomVal(-w*0.25, w*1.25), randomVal(-h*0.25, h*1.25))
+    xVal = fxrand()
+    yVal = fxrand()
+    y = map(pow(yVal, 0.5), 0, pow(1, 0.5), -h*0.25, h*1.25)
+    c.curveVertex(randomVal(-w*0.25, w*1.25), y)
   }
   c.endShape(CLOSE)
 }
@@ -538,8 +544,9 @@ function randAlpha() {
 }
 
 function shaper(x, y, r) {
-  numSides = randomInt(3, 8)
-  startAng = randomVal(0, 360)
+  numSides = randomInt(3, 5)
+
+  startAng = angBetween(w/2, h/2, center.x, center.y)//randomVal(0, 360)
   c.fill('white')
   c.noStroke()
   c.stroke('black')
@@ -566,15 +573,15 @@ function shaperGrid() {
 }
 
 function radGrad() {
-  lCol = chroma(bgc).brighten(0.5).hex()
-  dCol = chroma(bgc).darken(0.5).hex()
+  lCol = chroma(bgc).brighten(0.).hex()
+  dCol = chroma(randColor()).darken(0.).hex()
   for(let i = 0; i < w; i++) {
-    r = map(i, 0, w, h*1.3, 0)
+    r = map(i, 0, w, radNeeded*2, 0)
     num = map(i, 0, w, 0, 1)
     col = chroma.mix(dCol, lCol, num).hex()
     p.fill(col)
     p.noStroke()
-    p.circle(w/2, h/2, r)
+    p.circle(center.x, center.y, r)
   }
 }
 
@@ -636,27 +643,38 @@ function bgBlots() {
 }
 
 function cables() {
-  velocity = randomVal(0.5, 2)
+  velocity = vel//randomVal(0.5, 2)
   dir = angBetween(center.x, center.y, w/2, h/2)
   c.fill('white')
   c.noStroke()
-  dens = 1000
-  numCables = randomInt(2, 10)
+  dens = 5000
+  expo = randomVal(0.8, 1.0)
+  ns = randomVal(0.0005, 0.01)//0.005
+  numCables = 20//randomInt(2, 10)
   startAng = randomVal(0, 360)
-  sourceLoc = ptFromAng(center.x, center.y, dir+randomVal(-20, 20), h*velocity)
+  sourceLoc = ptFromAng(center.x, center.y, dir, h*velocity)
   for(let i = 0; i < dens; i++) {
     x = map(i, 0, dens, sourceLoc.x, center.x)
     y = map(i, 0, dens, sourceLoc.y, center.y)
-    rad = map(i, 0, dens, h, 20)
-    spin = map(noise(i*0.005), 0, 1, -40, 40)
+    rad = map(pow(i, expo), 0, pow(dens, expo), h, 0)
+    spin = map(noise(i*ns), 0, 1, -40, 40)
     for(let j = 0; j < 360; j+=360/numCables) {
       xMod = cos(j+startAng+spin)*rad
       yMod = sin(j+startAng+spin)*rad
       diam = TWO_PI*(rad/8)
-      sz = map(i, 0, dens, shapeRad*0.5, shapeRad/10)//(diam/numCables)
+      sz = cableSize//map(i, 0, dens, 20, 20)//(diam/numCables)
       
       c.circle(x+xMod, y+yMod, sz)
     }
   }
 }
 
+//hexagonal grid BG (honeycomb)
+
+//square grid BG (contrast in structure)
+
+//offset dot matrix bg (childlike)
+
+//interlocking sine wave bg (brainwaves)
+
+//

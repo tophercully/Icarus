@@ -11,9 +11,12 @@ class Shape {
         this.center = createVector(center.x, center.y)
         this.here = createVector(this.x, this.y)
         this.dis = this.here.dist(this.center)
+        this.sourceDis = this.here.dist(sourceLoc)
+        
         // console.log(this.dis, shapeRad)
-        if(this.dis < shapeRad/2) {
+        if(this.sourceDis > h*0.9) {
             // this.col = randColor()
+            this.val = randomVal(0, 150)
             if(this.colCheck < this.colorChance) {
                 this.col = randColor()
             } else {
@@ -21,8 +24,8 @@ class Shape {
             }
         } else {
             this.val = randomVal(0, 255)
-            this.alph = map(this.dis, shapeRad/2, radNeeded, 1, 0.25)
-            this.col = chroma(this.val, this.val, this.val).alpha(this.alph).hex()
+            this.alph = map(this.dis, shapeRad*0.5, radNeeded, 1, 0.25)
+            this.col = chroma(randColor()).alpha(this.alph).desaturate(210).hex()
         }
         
         
