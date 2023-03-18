@@ -221,6 +221,8 @@ void main() {
 
   // sampler2D newLayer = color;
 
+  color = adjustContrast(color, 0.2);
+
   color += noiseGray;
   gl_FragColor = vec4(color, 1.0);
 }

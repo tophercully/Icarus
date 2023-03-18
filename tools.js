@@ -492,6 +492,28 @@ function partSlicer() {
   }
 }
 
+function symPartSlicer() {
+  
+  for(let i = 0; i < 1; i++) {
+    c.stroke('red')
+    angA = randomVal(0, 360)
+    disA = randomVal(0, h)
+    angB = randomVal(0, 360)
+    disB = randomVal(0, h)
+    ptA = ptFromAng(center.x, center.y, dir+angA, disA)
+    ptB = ptFromAng(center.x, center.y, dir+angB, disB)
+
+  
+
+  ptA2 = ptFromAng(center.x, center.y, dir-angA, disA)
+  ptB2 = ptFromAng(center.x, center.y, dir-angA, disB)
+
+    // c.line(randomVal(0, w), randomVal(0, h), randomVal(0, w), randomVal(0, h))
+    c.line(ptA.x, ptA.y, ptB.x, ptB.y)
+    c.line(ptA2.x, ptA2.y, ptB2.x, ptB2.y)
+  }
+}
+
 function concentricGuide(x, y) {
   numRings = randomInt(3, 15)
   for(let i = 0; i < numRings; i++) {

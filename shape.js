@@ -12,10 +12,16 @@ class Shape {
         this.here = createVector(this.x, this.y)
         this.dis = this.here.dist(this.center)
         this.sourceDis = this.here.dist(sourceLoc)
+        this.trail = ptFromAng(this.x, this.y, dir+randomVal(-5, 5), 200*fxrand())
         
+        
+
         // console.log(this.dis, shapeRad)
         if(this.sourceDis > h*0.9) {
             // this.col = randColor()
+            p.stroke(chroma(frameCol).alpha(0.2).hex())
+            p.strokeWeight(randomVal(0, 1))
+            p.line(this.x, this.y, this.trail.x, this.trail.y)
             this.val = randomVal(0, 150)
             if(this.colCheck < this.colorChance) {
                 this.col = randColor()

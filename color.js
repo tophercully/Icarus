@@ -28,8 +28,8 @@ bgNames = [
   "Raisin Black",
 ];
 //Background color parameters
-bgNum = 4//randomInt(0, 5)//randomInt(0, 9);
-bgc = bgCols[bgNum];
+bgNum = 8//randomInt(0, 5)//randomInt(0, 9);
+bgc = 'white'//bgCols[bgNum];
 bgName = bgNames[bgNum];
 
 //Make a color that always contrasts bgc

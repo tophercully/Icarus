@@ -147,10 +147,18 @@ function draw() {
   } else {
     circleSlicer()
   }
+  // symPartSlicer()
   // slicer()
   // partSlicer()
-  circleSlicer()
+  // circleSlicer()
   shaper(center.x, center.y, shapeRad)
+
+  for(let i = 0; i < 1000; i++) {
+    p.fill(randColor())
+    p.noStroke()
+    p.circle(randomVal(0, w), randomVal(0, h), randomVal(0.5, 5))
+  }
+
   placer()
   // for(let i = 0; i < numShapes; i++) {
   //   mycomparator(shapes[i+1], shapes[i])
@@ -161,7 +169,7 @@ function draw() {
     
     
     for(let i = 0; i < perFrame; i++) {
-      shapes[((frameCount*perFrame)+i)].show(0.9)
+      shapes[((frameCount*perFrame))].show(0.9)
     // console.log(shapes[frameCount].distFromCenter)
     }
     
