@@ -1,6 +1,6 @@
 w= 1600
 h = 2000
-marg = w*randomVal(0.1, 0.2)
+marg = w*0.05//randomVal(0.1, 0.2)
 
 willReadFrequently = true
 
@@ -24,13 +24,14 @@ dists = []
 
 //parameters
 shapeRad = w*randomVal(0.05, 0.2)//randomVal(0.15, 0.4)//w*0.15//randomVal(0.2, 0.6)
-cableSize = randomVal(15, 40)
-splitDens = randomInt(20, 50)
+cableSize = 20//randomVal(20, 40)
+splitDens = 70//randomInt(20, 50)
+console.log(splitDens)
 centerDens = 10
 numShapes = splitDens*10//splitDens*10//map_range(splitDens, 5, 50, 10, 50)
 vel = randomVal(1.0, 1.3)
 colorChance = 0.5
-bgMode = randomInt(1, 2)
+bgMode = 3//randomInt(1, 3)
 cutMode = randomInt(1, 3)
 padding = 5//randomVal(5, 20) //minimum 3
 splitWt = 100
@@ -55,14 +56,9 @@ if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine
 
   p = createGraphics(w, h)
   c = createGraphics(w, h)
-  ro = createGraphics(w, h)
   angleMode(DEGREES)
   p.angleMode(DEGREES)
   c.angleMode(DEGREES)
-  ro.angleMode(DEGREES)
-  // noLoop()
-  // p.noLoop()
-  // c.noLoop()
 
   center = createVector(randomVal(marg+(shapeRad/2), (w-marg)-(shapeRad/2)), randomVal(marg+(shapeRad/2), (h-marg)-(shapeRad/2)))
   tl = createVector(0, 0)
@@ -88,7 +84,18 @@ function draw() {
     radGrad()
   } else if(bgMode == 2) {
     vGrad()
+  } else if(bgMode == 3) {
+    clouds()
+    
   }
+  skyCol = randColor()
+  clouds()
+  skyCol = randColor()
+  clouds()
+  skyCol = randColor()
+  clouds()
+
+  horizon()
   
   p.rectMode(CENTER)
   p.noFill()
@@ -187,7 +194,6 @@ function draw() {
    shade.setUniform("u_resolution", [w, h]);
    shade.setUniform("p", p);
    shade.setUniform("c", c);
-   shade.setUniform("ro", ro);
    shade.setUniform("center", [center.x/w, center.y/h])
    shade.setUniform("seed", seedA);
    shade.setUniform("seedB", seedB);

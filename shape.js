@@ -31,7 +31,7 @@ class Shape {
         } else {
             this.val = randomVal(0, 255)
             this.alph = map(this.dis, shapeRad*0.5, radNeeded, 1, 0.25)
-            this.col = chroma(randColor()).alpha(this.alph).desaturate(210).hex()
+            this.col = chroma(this.val, this.val, this.val).alpha(this.alph).hex()
         }
         
         

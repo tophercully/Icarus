@@ -666,19 +666,20 @@ function bgBlots() {
 
 function cables() {
   velocity = vel//randomVal(0.5, 2)
-  dir = angBetween(center.x, center.y, w/2, h/2)
+  startSz = h
+  dir = angBetween(center.x, center.y, w/2, startSz/2)
   c.fill('white')
   c.noStroke()
   dens = 5000
   expo = randomVal(0.8, 1.0)
   ns = randomVal(0.0005, 0.01)//0.005
-  numCables = 20//randomInt(2, 10)
+  numCables = randomInt(10, 30)//randomInt(2, 10)
   startAng = randomVal(0, 360)
-  sourceLoc = ptFromAng(center.x, center.y, dir, h*velocity)
+  sourceLoc = ptFromAng(center.x, center.y, dir, startSz*velocity)
   for(let i = 0; i < dens; i++) {
     x = map(i, 0, dens, sourceLoc.x, center.x)
     y = map(i, 0, dens, sourceLoc.y, center.y)
-    rad = map(pow(i, expo), 0, pow(dens, expo), h, 0)
+    rad = map(pow(i, expo), 0, pow(dens, expo), startSz, 0)
     spin = map(noise(i*ns), 0, 1, -40, 40)
     for(let j = 0; j < 360; j+=360/numCables) {
       xMod = cos(j+startAng+spin)*rad
@@ -694,9 +695,52 @@ function cables() {
 //hexagonal grid BG (honeycomb)
 
 //square grid BG (contrast in structure)
+function gridBG() {
+  p.rectMode(CENTER)
+  p.noFill()
+  p.stroke(truePal[0])
+  p.strokeWeight(1)
+  rows = randomInt(3, 100)
+  cols = randomInt(3, 100)
+  cellW = (w-(marg*2))/cols
+  cellH = (h-(marg*2))/rows
+  for(let y = 0; y < rows; y++) {
+    for(let x = 0; x < cols; x++) {
+      p.rect(marg+(cellW*x)+(cellW/2), marg+(cellH*y)+(cellH/2), cellW, cellH)
+    }
+  }
+}
 
 //offset dot matrix bg (childlike)
 
 //interlocking sine wave bg (brainwaves)
 
-//
+//cloudy bg
+function clouds() {
+  dens = 1000
+  col = chroma.mix(skyCol, bgc, 0.5).hex()
+  p.fill(chroma(col).alpha(0.05+randomVal(0.0001, -0.0001)).hex())
+  p.noStroke()
+  for(let i = 0; i < dens; i++) {
+    p.circle(randomVal(0, w), randomVal(0, h), randomVal(100, 400))
+  }
+}
+
+//show a bit of the horizon with some curvature
+
+function horizon() {
+  p.fill(chroma('black').alpha(0.15).hex())
+  horiz = h*randomVal(0.5, 0.8)
+  p.beginShape()
+  p.vertex(0, horiz)
+  p.curveVertex(0, horiz)
+  
+  p.curveVertex(w/2, horiz-30)
+  p.curveVertex(w, horiz)
+  p.curveVertex(w, horiz)
+  p.vertex(w, h)
+  p.vertex(0, h)
+  p.vertex(0, horiz)
+
+  p.endShape(CLOSE)
+}

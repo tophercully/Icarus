@@ -216,6 +216,8 @@ const overlook = ["#3d4d20","#ad0b08","#1d5473","#798b97","#edd2b7","#b76439","#
 
 const helmetFace = ["#617a5c","#a3ab86","#accbf9","#f3c9f4","#030305","#cfd9e3","#e3e4e8"]
 
+const skyCols = ["#0068C1"]
+skyCol = skyCols[randomInt(0, skyCols.length-1)]
 
 const achro = [
   'black',
