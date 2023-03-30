@@ -24,11 +24,11 @@ dists = []
 
 //parameters
 shapeRad = w*randomVal(0.05, 0.2)//randomVal(0.15, 0.4)//w*0.15//randomVal(0.2, 0.6)
-cableSize = 20//randomVal(20, 40)
-splitDens = 70//randomInt(20, 50)
+cableSize = 15//randomVal(20, 40)
+splitDens = randomInt(20, 50)
 console.log(splitDens)
 centerDens = 10
-numShapes = splitDens*10//splitDens*10//map_range(splitDens, 5, 50, 10, 50)
+numShapes = 600//splitDens*10//splitDens*10//map_range(splitDens, 5, 50, 10, 50)
 vel = randomVal(1.1, 1.3)
 colorChance = 0.5
 bgMode = 3//randomInt(1, 3)

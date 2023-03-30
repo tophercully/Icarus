@@ -443,13 +443,47 @@ function limitedFlower(x, y) {
   p.endShape(CLOSE)
 }
 
+function removeOption(x, y) {
+  c.strokeWeight(1)
+  c.fill('black')
+  c.noStroke()
+  c.beginShape()
+  noiseMax = 50
+  phase = randomVal(0, 100000000)
+  phaseB = randomVal(0, 100000000)
+  angNS = randomVal(0.1, 0.5)
+
+  for(let i = 0 ; i < 360; i+=20) {
+    xOff = map(cos(i), -1, 1, 0, noiseMax)
+    yOff = map(sin(i), -1, 1, 0, noiseMax)
+    rad = 0
+    radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
+    edgeNoise = map(noise(i*0.05, phase), 0, 1, 0.98, 1)
+    tripped = false
+    while(tripped == false) {
+      rad += 1
+      here = ptFromAng(x, y, i, rad)
+      colBase = c.get(here.x, here.y)
+      colCheck = colBase[0]
+      if(colCheck == 0) {
+        tripped = true
+        rad -= 0
+        here = ptFromAng(x, y, i, rad)
+      }
+    }
+    noiseHere = ptFromAng(x, y, i, (rad+10))
+    c.vertex(noiseHere.x, noiseHere.y)
+  }
+  c.endShape(CLOSE)
+}
+
 function placer() {
   numPlaced = 0
   tries = 0
   samp = []
   ang = 0
   while(numPlaced < numShapes) {
-    ang+=randomVal(-50, 50)
+    ang+=randomVal(-100, 100)
     radNow = map(pow(numPlaced, 1.5), 0, pow(numShapes, 1.5), randomVal(0, shapeRad/2), radNeeded)
     here = ptFromAng(center.x, center.y, ang, radNow)
     samp = c.get(here.x, here.y)
@@ -666,7 +700,7 @@ function bgBlots() {
 
 function cables() {
   velocity = vel//randomVal(0.5, 2)
-  startSz = h*2//randomVal(0.5, 1.5)
+  startSz = h*randomVal(0.5, 1.5)
   dir = angBetween(center.x, center.y, w/2, h/2)
   c.fill('white')
   c.noStroke()
@@ -681,6 +715,15 @@ function cables() {
     y = map(i, 0, dens, sourceLoc.y, center.y)
     rad = map(pow(i, expo), 0, pow(dens, expo), startSz, 0)
     spin = map(noise(i*ns), 0, 1, -40, 40)
+    if(i == Math.round(dens*0.75)) {
+      c.push()
+      port = ptFromAng(x, y, dir-90, rad*2)
+      starboard = ptFromAng(x, y, dir+90, rad*2)
+      front = ptFromAng(center.x, center.y, dir, 100)
+      back = ptFromAng(center.x, center.y, dir, startSz*randomVal(0.15, 0.25))
+      c.quad(front.x, front.y, starboard.x, starboard.y, back.x, back.y, port.x, port.y)
+      c.pop()
+    }
     for(let j = 0; j < 360; j+=360/numCables) {
       xMod = cos(j+startAng+spin)*rad
       yMod = sin(j+startAng+spin)*rad

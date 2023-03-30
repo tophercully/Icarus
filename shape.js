@@ -16,12 +16,15 @@ class Shape {
         
         
 
-        // console.log(this.dis, shapeRad)
+        p.stroke(chroma(frameCol).alpha(0.2).hex())
+        p.strokeWeight(randomVal(0, 1))
+        p.line(this.x, this.y, this.trail.x, this.trail.y)
+        
+        for(let i = 0; i < 3; i++) {
+            // console.log(this.dis, shapeRad)
         if(this.sourceDis > startSz-200) {
             // this.col = randColor()
-            p.stroke(chroma(frameCol).alpha(0.2).hex())
-            p.strokeWeight(randomVal(0, 1))
-            p.line(this.x, this.y, this.trail.x, this.trail.y)
+            
             this.val = randomVal(0, 150)
             if(this.colCheck < this.colorChance) {
                 this.col = randColor()
@@ -33,17 +36,18 @@ class Shape {
             this.alph = map(this.dis, shapeRad*0.5, radNeeded, 1, 0.25)
             this.col = chroma(this.val, this.val, this.val).alpha(this.alph).hex()
         }
-        
-        
-        p.fill(this.col)
-        this.decider = Math.floor(fxrand()*3)
-        if(this.decider == 0) {
-            limitedSpreader(this.x, this.y)
-        } else if(this.decider == 1) {
-            limitedFlower(this.x, this.y)
-        } else if(this.decider == 2) {
-            limitedRays(this.x, this.y)
+
+            p.fill(this.col)
+            this.decider = Math.floor(fxrand()*3)
+            if(this.decider == 0) {
+                limitedSpreader(this.x, this.y)
+            } else if(this.decider == 1) {
+                limitedFlower(this.x, this.y)
+            } else if(this.decider == 2) {
+                limitedRays(this.x, this.y)
+            }
         }
+        removeOption(this.x, this.y)
     }
 }
 
