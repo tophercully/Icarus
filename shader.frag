@@ -113,7 +113,7 @@ void main() {
   float zoom = 0.8;
   float pxDis = distance(stExpand.xy, center.xy);
   float pushMult = map(pxDis, 0.0, 1.0, 0.0, 0.1);
-  float spreadDis = map(pxDis, 0.0, 0.5, 0.0, 0.02);
+  float spreadDis = map(pow(pxDis, 3.0), 0.0, pow(0.6, 3.0), 0.0, 0.04);
   float spreadInc = spreadDis/12.0;
   st = (st - center) * (1.0+spreadInc*13.0) + center;
   st1 = (st1 - center) * (1.0+(spreadInc*12.0)) + center;

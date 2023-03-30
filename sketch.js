@@ -1,6 +1,6 @@
 w= 1600
 h = 2000
-marg = w*0.05//randomVal(0.1, 0.2)
+marg = w*0.025//randomVal(0.05, 0.1)
 
 willReadFrequently = true
 
@@ -29,12 +29,20 @@ splitDens = 70//randomInt(20, 50)
 console.log(splitDens)
 centerDens = 10
 numShapes = splitDens*10//splitDens*10//map_range(splitDens, 5, 50, 10, 50)
-vel = randomVal(1.0, 1.3)
+vel = randomVal(1.1, 1.3)
 colorChance = 0.5
 bgMode = 3//randomInt(1, 3)
 cutMode = randomInt(1, 3)
 padding = 5//randomVal(5, 20) //minimum 3
 splitWt = 100
+
+
+if(day == true) {
+  numStars = randomInt(50, 100)
+} else {
+  numStars = 5000//randomInt(2000, 5000)
+  
+}
 
 
 
@@ -88,12 +96,12 @@ function draw() {
     clouds()
     
   }
-  skyCol = randColor()
-  clouds()
-  skyCol = randColor()
-  clouds()
-  skyCol = randColor()
-  clouds()
+  // skyCol = randColor()
+  // clouds()
+  // skyCol = randColor()
+  // clouds()
+  // skyCol = randColor()
+  // clouds()
 
   horizon()
   
@@ -107,31 +115,11 @@ function draw() {
   c.rectMode(CENTER)
   //declare safe space
   c.fill('white')
-  for(let i = 0; i < 10; i++) {
-    c.noStroke()
-    // c.circle(randomVal(0, w), randomVal(0, h), w*randomVal(0.3, 0.7))
-    // randAlpha()
-  }
-
-  c.textSize(400)
-  c.textAlign(CENTER, CENTER)
-  // c.text('test', w/2, h/2)
-  
-  // cSpiral(center.x, center.y, radNeeded*2)
-  // bgRays(center.x, center.y)
   cables()
-  // c.circle(center.x, center.y, w/2)
-  
-  // shaperGrid()
-  // c.rect(w/2, h/2, w, h)
-  // concentricGuide(randomVal(0, w), randomVal(0, h))
-  // radialShapes(w/2, h/2)
-  
 
   //border weight
   c.stroke('black')
   c.strokeWeight(marg*0.666)
-  // c.line(w/2, 0, w/2, h)
   c.noFill()
   c.rect(w/2, h/2, w-marg*0.666, h-marg*0.666)
 
@@ -160,8 +148,8 @@ function draw() {
   // circleSlicer()
   shaper(center.x, center.y, shapeRad)
 
-  for(let i = 0; i < 1000; i++) {
-    p.fill(randColor())
+  for(let i = 0; i < numStars; i++) {
+    p.fill(frameCol)
     p.noStroke()
     p.circle(randomVal(0, w), randomVal(0, h), randomVal(0.5, 5))
   }

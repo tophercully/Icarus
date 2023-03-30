@@ -17,7 +17,7 @@ class Shape {
         
 
         // console.log(this.dis, shapeRad)
-        if(this.sourceDis > h*0.9) {
+        if(this.sourceDis > startSz-200) {
             // this.col = randColor()
             p.stroke(chroma(frameCol).alpha(0.2).hex())
             p.strokeWeight(randomVal(0, 1))

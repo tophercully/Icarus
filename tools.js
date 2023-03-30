@@ -666,14 +666,14 @@ function bgBlots() {
 
 function cables() {
   velocity = vel//randomVal(0.5, 2)
-  startSz = h
-  dir = angBetween(center.x, center.y, w/2, startSz/2)
+  startSz = h*2//randomVal(0.5, 1.5)
+  dir = angBetween(center.x, center.y, w/2, h/2)
   c.fill('white')
   c.noStroke()
   dens = 5000
   expo = randomVal(0.8, 1.0)
   ns = randomVal(0.0005, 0.01)//0.005
-  numCables = randomInt(10, 30)//randomInt(2, 10)
+  numCables = randomInt(8, 30)//randomInt(2, 10)
   startAng = randomVal(0, 360)
   sourceLoc = ptFromAng(center.x, center.y, dir, startSz*velocity)
   for(let i = 0; i < dens; i++) {
@@ -717,7 +717,7 @@ function gridBG() {
 
 //cloudy bg
 function clouds() {
-  dens = 1000
+  dens = randomInt(800, 2000)
   col = chroma.mix(skyCol, bgc, 0.5).hex()
   p.fill(chroma(col).alpha(0.05+randomVal(0.0001, -0.0001)).hex())
   p.noStroke()
@@ -730,7 +730,7 @@ function clouds() {
 
 function horizon() {
   p.fill(chroma('black').alpha(0.15).hex())
-  horiz = h*randomVal(0.5, 0.8)
+  horiz = h*randomVal(0.5, 0.85)
   p.beginShape()
   p.vertex(0, horiz)
   p.curveVertex(0, horiz)

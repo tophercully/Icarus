@@ -29,7 +29,19 @@ bgNames = [
 ];
 //Background color parameters
 bgNum = 8//randomInt(0, 5)//randomInt(0, 9);
-bgc = 'white'//bgCols[bgNum];
+// bgc = 'white'//bgCols[bgNum];
+timeMode = fxrand()
+if(timeMode < 0.5) {
+  day = true
+} else {
+  day = false
+}
+
+if(day == true) {
+  bgc = 'white'
+} else {
+  bgc = 'black'
+}
 bgName = bgNames[bgNum];
 
 //Make a color that always contrasts bgc
@@ -216,7 +228,7 @@ const overlook = ["#3d4d20","#ad0b08","#1d5473","#798b97","#edd2b7","#b76439","#
 
 const helmetFace = ["#617a5c","#a3ab86","#accbf9","#f3c9f4","#030305","#cfd9e3","#e3e4e8"]
 
-const skyCols = ["#0068C1"]
+const skyCols = ["#0068C1", "#E97D48", frameCol]
 skyCol = skyCols[randomInt(0, skyCols.length-1)]
 
 const achro = [
