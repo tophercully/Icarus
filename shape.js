@@ -14,13 +14,14 @@ class Shape {
         this.sourceDis = this.here.dist(sourceLoc)
         this.trail = ptFromAng(this.x, this.y, dir+randomVal(-5, 5), 200*fxrand())
         
-        
-
-        p.stroke(chroma(frameCol).alpha(0.2).hex())
+        //draw jetstream
+        p.stroke(chroma(frameCol).alpha(0.1).hex())
         p.strokeWeight(randomVal(0, 1))
-        p.line(this.x, this.y, this.trail.x, this.trail.y)
-        
-        for(let i = 0; i < 3; i++) {
+        // p.line(this.x, this.y, this.trail.x, this.trail.y)
+
+        //draw the layers
+        this.numLayers = 5//randomInt(2, 5)
+        for(let i = 0; i < this.numLayers; i++) {
             // console.log(this.dis, shapeRad)
         if(this.sourceDis > startSz-200) {
             // this.col = randColor()
@@ -38,13 +39,18 @@ class Shape {
         }
 
             p.fill(this.col)
-            this.decider = Math.floor(fxrand()*3)
+            this.decider = randomInt(0, 3)
             if(this.decider == 0) {
                 limitedSpreader(this.x, this.y)
             } else if(this.decider == 1) {
                 limitedFlower(this.x, this.y)
             } else if(this.decider == 2) {
                 limitedRays(this.x, this.y)
+            } else if( this.decider == 3) {
+                p.push()
+                p.stroke(this.col)
+                limitedLines(this.x, this.y)
+                p.pop()
             }
         }
         removeOption(this.x, this.y)

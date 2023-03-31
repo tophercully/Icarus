@@ -283,6 +283,8 @@ function limitedSpreader(x, y) {
   phase = randomVal(0, 100000000)
   phaseB = randomVal(0, 100000000)
   angNS = randomVal(0.1, 0.5)
+  cancelled = false
+  totalSz = 0
 
   for(let i = 0 ; i < 360; i+=20) {
     xOff = map(cos(i), -1, 1, 0, noiseMax)
@@ -300,31 +302,47 @@ function limitedSpreader(x, y) {
         tripped = true
         rad -= 0
         here = ptFromAng(x, y, i, rad)
+        
       }
+    }
+    totalSz += rad
+    if(totalSz/(360/20) < 1) {
+      cancelled = true
     }
     noiseHere = ptFromAng(x, y, i, (rad*edgeNoise))
     p.vertex(noiseHere.x, noiseHere.y)
   }
-  p.endShape(CLOSE)
+  if(cancelled == false) {
+    p.endShape(CLOSE)
+  }
+  
 }
 
 function limitedLines(x, y) {
-  p.strokeWeight(3)
-  p.stroke(randColor())
-  p.noStroke()
-  p.beginShape()
+  ptsA = []
+  ptsB = []
+  numLines = 180/randomInt(5, 20)
+  startAng = randomInt(0, 360)
+  p.strokeCap(SQUARE)
+  p.strokeWeight(randomVal(1, 5))
+  // p.stroke(frameCol)
+  // p.noStroke()
   noiseMax = 50
   phase = randomVal(0, 100000000)
   phaseB = randomVal(0, 100000000)
   angNS = randomVal(0.1, 0.5)
+  cancelled = false
+  totalSz = 0
 
-  for(let i = 0 ; i < 180; i+=10) {
+  for(let i = 0 ; i < 180; i+=numLines) {
     xOff = map(cos(i), -1, 1, 0, noiseMax)
     yOff = map(sin(i), -1, 1, 0, noiseMax)
     rad = 0
+    rad2 = 0
     radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
     edgeNoise = map(noise(i*0.05, phase), 0, 1, 0.98, 1)
     tripped = false
+    tripped2 = false
     while(tripped == false) {
       rad += 1
       here = ptFromAng(x, y, i, rad)
@@ -334,27 +352,50 @@ function limitedLines(x, y) {
         tripped = true
         rad -= 0
         here = ptFromAng(x, y, i, rad)
+        
       }
     }
-    radB = 0
+    totalSz += rad
+    noiseHere = ptFromAng(x, y, i, (rad*edgeNoise))
+    ptsA[i] = here
+  }
+
+  for(let i = 0 ; i < 180; i+=numLines) {
+    xOff = map(cos(i), -1, 1, 0, noiseMax)
+    yOff = map(sin(i), -1, 1, 0, noiseMax)
+    rad = 0
+    rad2 = 0
+    radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
+    edgeNoise = map(noise(i*0.05, phase), 0, 1, 0.98, 1)
     tripped = false
+    tripped2 = false
     while(tripped == false) {
-      radB += 1
+      rad += 1
       here = ptFromAng(x, y, -i, rad)
       colBase = c.get(here.x, here.y)
       colCheck = colBase[0]
       if(colCheck == 0) {
         tripped = true
-        radB -= 0
+        rad -= 0
         here = ptFromAng(x, y, -i, rad)
+        
       }
     }
-
-    noiseHere = ptFromAng(x, y, i, (rad*edgeNoise))
-    noiseThere = ptFromAng(x, y, -i, (radB*edgeNoise))
-    p.line(noiseHere.x, noiseHere.y, noiseThere.x, noiseThere.y)
+    totalSz += rad
+    noiseHere = ptFromAng(x, y, -i, (rad*edgeNoise))
+    ptsB[i] = here
   }
-  p.endShape(CLOSE)
+
+  if(totalSz/(180/numLines) < 20) {
+    cancelled = true
+  }
+  if(cancelled == false) {
+    for(let i = 0; i < 180; i+=numLines) {
+      p.line(ptsA[i].x, ptsA[i].y, ptsB[i].x, ptsB[i].y)
+    }
+  }
+  
+
 }
 
 function limitedRays(x, y) {
@@ -369,6 +410,8 @@ function limitedRays(x, y) {
   phase = randomVal(0, 100000000)
   phaseB = randomVal(0, 100000000)
   angNS = randomVal(0.1, 0.5)
+  cancelled = false
+  totalSz = 0
  
   for(let i = 0 ; i < 360; i+=10) {
     sine = sin(i*numRays)
@@ -387,8 +430,10 @@ function limitedRays(x, y) {
         tripped = true
         rad -= 0
         here = ptFromAng(x, y, i, rad)
+        
       }
     }
+    totalSz += rad
     noiseHere = ptFromAng(x, y, i, (rad*edgeNoise))
     if(sine < rayMidPt) {
       p.vertex(noiseHere.x, noiseHere.y)
@@ -398,7 +443,13 @@ function limitedRays(x, y) {
     }
     
   }
-  p.endShape(CLOSE)
+  if(totalSz/(360/10) < 2) {
+    cancelled = true
+  }
+  if(cancelled == false) {
+    p.endShape(CLOSE)
+  }
+  
 }
 
 function limitedFlower(x, y) {
@@ -413,6 +464,8 @@ function limitedFlower(x, y) {
   phase = randomVal(0, 100000000)
   phaseB = randomVal(0, 100000000)
   angNS = randomVal(0.1, 0.5)
+  cancelled = false
+  totalSz = 0
   
   for(let i = 0 ; i < 360; i+=2) {
     flowerMod = map(sin(i*numPetals), -1, 1, 0, 1)
@@ -432,15 +485,22 @@ function limitedFlower(x, y) {
         tripped = true
         rad -= 0
         here = ptFromAng(x, y, i, rad)
+        
       }
     }
+    totalSz += rad
     noiseHere = ptFromAng(x, y, i, (rad*edgeNoise)*flowMod)
     
     p.vertex(noiseHere.x, noiseHere.y)
     
     
   }
-  p.endShape(CLOSE)
+  if(totalSz/(360/2) < 2) {
+    cancelled = true
+  }
+  if(cancelled == false) {
+    p.endShape(CLOSE)
+  }
 }
 
 function removeOption(x, y) {
@@ -700,7 +760,7 @@ function bgBlots() {
 
 function cables() {
   velocity = vel//randomVal(0.5, 2)
-  startSz = h*randomVal(0.5, 1.5)
+  startSz = h*randomVal(0.75, 1.5)
   dir = angBetween(center.x, center.y, w/2, h/2)
   c.fill('white')
   c.noStroke()
@@ -735,7 +795,7 @@ function cables() {
   }
 }
 
-//hexagonal grid BG (honeycomb)
+
 
 //square grid BG (contrast in structure)
 function gridBG() {
@@ -772,7 +832,7 @@ function clouds() {
 //show a bit of the horizon with some curvature
 
 function horizon() {
-  p.fill(chroma('black').alpha(0.15).hex())
+  p.fill(chroma('black').alpha(0.05).hex())
   horiz = h*randomVal(0.5, 0.85)
   p.beginShape()
   p.vertex(0, horiz)

@@ -32,12 +32,12 @@ bgNum = 8//randomInt(0, 5)//randomInt(0, 9);
 // bgc = 'white'//bgCols[bgNum];
 timeMode = fxrand()
 if(timeMode < 0.5) {
-  day = true
+  dayMode = true
 } else {
-  day = false
+  dayMode = false
 }
 
-if(day == true) {
+if(dayMode == true) {
   bgc = 'white'
 } else {
   bgc = 'black'
@@ -228,8 +228,8 @@ const overlook = ["#3d4d20","#ad0b08","#1d5473","#798b97","#edd2b7","#b76439","#
 
 const helmetFace = ["#617a5c","#a3ab86","#accbf9","#f3c9f4","#030305","#cfd9e3","#e3e4e8"]
 
-const skyCols = ["#0068C1", "#E97D48", frameCol]
-skyCol = skyCols[randomInt(0, skyCols.length-1)]
+
+skyCol = frameCol
 
 const achro = [
   'black',
@@ -278,6 +278,17 @@ for (let i = 0; i < pal.length-1; i++) {
     .mix(pal[i], chroma.temperature(warmTemp).hex(), 0.5)
     .saturate()
     .hex();
+}
+
+skyDecider = fxrand()
+if(skyDecider < 0.2) {
+  skyColored = true
+} else {
+  skyColored = false
+}
+
+if(skyColored == true) {
+  skyCol = "#0068C1"
 }
 
 //Combine palettes and shuffle that full palette

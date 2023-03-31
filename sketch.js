@@ -1,6 +1,6 @@
 w= 1600
 h = 2000
-marg = w*0.025//randomVal(0.05, 0.1)
+marg = w*randomVal(0.05, 0.2)
 
 willReadFrequently = true
 
@@ -23,27 +23,34 @@ shapes = []
 dists = []
 
 //parameters
-shapeRad = w*randomVal(0.05, 0.2)//randomVal(0.15, 0.4)//w*0.15//randomVal(0.2, 0.6)
-cableSize = 15//randomVal(20, 40)
+shapeRad = w*randomVal(0.05, 0.2)
+cableSize = randomVal(20, 40)
 splitDens = randomInt(20, 50)
 console.log(splitDens)
 centerDens = 10
-numShapes = 600//splitDens*10//splitDens*10//map_range(splitDens, 5, 50, 10, 50)
+numShapes = 1000
 vel = randomVal(1.1, 1.3)
 colorChance = 0.5
-bgMode = 3//randomInt(1, 3)
 cutMode = randomInt(1, 3)
-padding = 5//randomVal(5, 20) //minimum 3
+padding = 5
 splitWt = 100
 
 
-if(day == true) {
+if(dayMode == true) {
   numStars = randomInt(50, 100)
 } else {
   numStars = 5000//randomInt(2000, 5000)
   
 }
 
+
+window.$fxhashFeatures = {
+  "Time": dayMode,
+  
+  "Palette": palName,
+  "density": splitDens,
+  
+}
 
 
 function setup() {
@@ -86,80 +93,62 @@ function draw() {
 
   if(frameCount==1){
     background(bgc)
-  c.background('black')
-  p.background(bgc)
-  if(bgMode == 1) {
-    radGrad()
-  } else if(bgMode == 2) {
-    vGrad()
-  } else if(bgMode == 3) {
-    clouds()
-    
-  }
-  // skyCol = randColor()
-  // clouds()
-  // skyCol = randColor()
-  // clouds()
-  // skyCol = randColor()
-  // clouds()
-
-  horizon()
-  
-  p.rectMode(CENTER)
-  p.noFill()
-  p.stroke(bgc)
-  p.strokeWeight(marg*2)
-  p.rect(w/2, h/2, w, h)
-  
-  //center rectangles
-  c.rectMode(CENTER)
-  //declare safe space
-  c.fill('white')
-  cables()
-
-  //border weight
-  c.stroke('black')
-  c.strokeWeight(marg*0.666)
-  c.noFill()
-  c.rect(w/2, h/2, w-marg*0.666, h-marg*0.666)
-
-  //Sketch
-  // try drawing an image, placing colored areas 
-  // only where there is white, and retracting each 
-  // until the image is white (not just distance)
-
-  //Padding weight, minimum 4
-  c.strokeWeight(padding)
-  for(let i = 0; i < 0; i++) {
-    
-    c.line(randomVal(0, w), randomVal(0, h), randomVal(0, w), randomVal(0, h))
-    c.circle(randomVal(-w/2, w*1.5), randomVal(-h/2, h*1.5), randomVal(300, h))
-  }
-  if(cutMode == 1) {
-    slicer()
-  } else if(cutMode == 2) {
-    partSlicer()
-  } else {
-    circleSlicer()
-  }
-  // symPartSlicer()
-  // slicer()
-  // partSlicer()
-  // circleSlicer()
-  shaper(center.x, center.y, shapeRad)
-
-  for(let i = 0; i < numStars; i++) {
+    c.background('black')
+    p.background(bgc)
+    //draw stars
+    for(let i = 0; i < numStars; i++) {
     p.fill(frameCol)
     p.noStroke()
     p.circle(randomVal(0, w), randomVal(0, h), randomVal(0.5, 5))
+    }
+    //draw clouds
+    clouds()
+    //build horizon
+    horizon()
+    //create margin
+    p.rectMode(CENTER)
+    p.noFill()
+    borderDens = 50
+    for(let i = 0; i < borderDens; i++) {
+      p.stroke(chroma(bgc).alpha((2/borderDens)+randomVal(-0.001, 0.001)).hex())
+      wt = map(i, 0, borderDens, marg*2, (marg*2)-70)
+      p.strokeWeight(wt)
+      p.rect((w/2), (h/2), w, h)
+    }
+
+  
+    //center rectangles
+    c.rectMode(CENTER)
+    //declare safe space
+    c.fill('white')
+    cables()
+
+    //border weight
+    c.stroke('black')
+    c.strokeWeight(marg*0.666)
+    c.noFill()
+    c.rect(w/2, h/2, w-marg*0.666, h-marg*0.666)
+
+    //Padding weight, minimum 4
+    c.strokeWeight(padding)
+    for(let i = 0; i < 0; i++) {
+
+      c.line(randomVal(0, w), randomVal(0, h), randomVal(0, w), randomVal(0, h))
+      c.circle(randomVal(-w/2, w*1.5), randomVal(-h/2, h*1.5), randomVal(300, h))
+    }
+    if(cutMode == 1) {
+      slicer()
+    } else if(cutMode == 2) {
+      partSlicer()
+    } else {
+      circleSlicer()
+    }
+  
+    shaper(center.x, center.y, shapeRad)
+    placer()
   }
 
-  placer()
-  // for(let i = 0; i < numShapes; i++) {
-  //   mycomparator(shapes[i+1], shapes[i])
-  // }
-}
-  perFrame = 2
+  perFrame = 3
   if(frameCount < numShapes/perFrame) {
     
     
@@ -169,11 +158,6 @@ function draw() {
     }
     
   }
-
-  
-
-  
-  
 
   //Post processing
   //  copy(p, 0, 0, w, h, 0, 0, w, h)
