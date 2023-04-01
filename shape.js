@@ -11,21 +11,12 @@ class Shape {
         this.center = createVector(center.x, center.y)
         this.here = createVector(this.x, this.y)
         this.dis = this.here.dist(this.center)
-        this.sourceDis = this.here.dist(sourceLoc)
-        this.trail = ptFromAng(this.x, this.y, dir+randomVal(-5, 5), 200*fxrand())
-        
-        //draw jetstream
-        p.stroke(chroma(frameCol).alpha(0.1).hex())
-        p.strokeWeight(randomVal(0, 1))
-        // p.line(this.x, this.y, this.trail.x, this.trail.y)
+        this.sourceDis = this.here.dist(sourceLoc)        
 
         //draw the layers
-        this.numLayers = 5//randomInt(2, 5)
+        this.numLayers = randomInt(3, 5)
         for(let i = 0; i < this.numLayers; i++) {
-            // console.log(this.dis, shapeRad)
-        if(this.sourceDis > startSz-200) {
-            // this.col = randColor()
-            
+        if(this.sourceDis > startSz-200) {            
             this.val = randomVal(0, 150)
             if(this.colCheck < this.colorChance) {
                 this.col = randColor()

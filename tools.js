@@ -127,153 +127,6 @@ function mycomparator(a,b) {
 
 ////////////////////////////////////////
 
-
-function limitOrb(x, y, r, trueR) {
-  trueR /= 2
-  phase = randomVal(0, 10000000)
-  phaseB = randomVal(0, 10000000)
-
-  p.push()
-  p.noFill()
-  col = randColor()
-  p.fill(chroma(col).alpha(randomVal(0.025, 0.2)).hex())
-  p.stroke(chroma(col).alpha(0.75).darken(2).hex())
-  p.strokeWeight(0.3)
-  p.beginShape()
-
-  noiseMax = randomVal(5, 30)
-  angNS = randomVal(0.1, 0.5)
-  for(let i = 0; i < 360; i+=0.1) {
-    xOff = map(cos(i), -1, 1, 0, noiseMax)
-    yOff = map(sin(i), -1, 1, 0, noiseMax)
-    rad = map(noise(xOff, yOff, phase), 0, 1, 0, r/2)//r/2
-    angOff = map(noise(xOff*angNS, yOff*angNS, phaseB), 0, 1, -360, 360)
-
-    here = ptFromAng(x, y, i+angOff, rad)
-    dist = here.dist(center)
-    tries = 0
-    while(dist > trueR) {
-      rad -= 1
-      here = ptFromAng(x, y, i, rad)
-      dist = here.dist(center)
-      tries++
-      if(tries > trueR) {
-        return
-      }
-    }
-    p.vertex(here.x, here.y)
-  }
-  p.endShape(CLOSE)
-  p.pop()
-}
-
-function limitSpread(x, y, r, trueR) {
-  trueR /= 2
-  phase = randomVal(0, 10000000)
-  phaseB = randomVal(0, 10000000)
-
-  p.push()
-  p.noFill()
-  col = randColor()
-  p.fill(chroma(col).alpha(randomVal(0.025, 0.2)).hex())
-  p.stroke(chroma(col).alpha(0.75).darken(2).hex())
-  p.strokeWeight(0.3)
-  p.beginShape()
-
-  noiseMax = randomVal(5, 30)
-  angNS = randomVal(0.1, 0.5)
-  for(let i = 0; i < 360; i+=0.1) {
-    xOff = map(cos(i), -1, 1, 0, noiseMax)
-    yOff = map(sin(i), -1, 1, 0, noiseMax)
-    rad = map(noise(xOff, yOff, phase), 0, 1, 0, r/2)//r/2
-    angOff = map(noise(xOff*angNS, yOff*angNS, phaseB), 0, 1, -360, 360)
-
-    here = ptFromAng(x, y, i+angOff, rad)
-    dist = here.dist(center)
-    tries = 0
-    while(dist > trueR) {
-      rad -= 1
-      here = ptFromAng(x, y, i+angOff, rad)
-      dist = here.dist(center)
-      tries++
-      if(tries > trueR) {
-        return
-      }
-    }
-    p.vertex(here.x, here.y)
-  }
-  p.endShape(CLOSE)
-  p.pop()
-}
-
-function spreader(x, y, r, trueR) {
-  trueR /= 2
-  phase = randomVal(0, 10000000)
-  phaseB = randomVal(0, 10000000)
-
-  p.push()
-  p.noFill()
-  col = randColor()
-  alph = randomVal(0.025, 0.2)
-  p.fill(chroma(col).alpha(alph).hex())
-  p.stroke(chroma(col).alpha(0.75).darken(2).hex())
-  p.strokeWeight(0.3)
-  p.beginShape()
-
-  noiseMax = randomVal(5, 30)
-  angNS = randomVal(0.1, 0.5)
-  for(let i = 0; i < 360; i+=1) {
-    xOff = map(cos(i), -1, 1, 0, noiseMax)
-    yOff = map(sin(i), -1, 1, 0, noiseMax)
-    rad = map(noise(xOff, yOff, phase), 0, 1, 0, r/2)//r/2
-    angOff = map(noise(xOff*angNS, yOff*angNS, phaseB), 0, 1, -360, 360)
-
-    here = ptFromAng(x, y, i+angOff, rad)
-    colCheckBase = p.get(here.x, here.y)
-    colCheck = colCheckBase[0]
-    tries = 0
-    while(colCheck > 100) {
-      rad += 10
-      here = ptFromAng(x, y, i+angOff, rad)
-      dist = here.dist(center)
-      colcheckBase = c.get(here.x, here.y)
-      colCheck = colCheckBase[0]
-      console.log(colCheck)
-      tries++
-      if(colCheck == 0) {
-        return
-      }
-    }
-    p.vertex(here.x, here.y)
-  }
-  p.endShape(CLOSE)
-  p.pop()
-}
-
-function basicSpreader(x, y, r) {
-  p.strokeWeight(2)
-  p.beginShape()
-  p.fill(randColor())
-  for(let i = 0 ; i  < 360; i++) {
-    rad = 0
-    tripped = false
-    while(tripped == false) {
-      rad += 1
-      here = ptFromAng(x, y, i, rad)
-      colBase = c.get(here.x, here.y)
-      colCheck = colBase[0]
-      if(colCheck == 0) {
-        tripped = true
-        rad -= 10
-        here = ptFromAng(x, y, i, rad)
-      }
-    }
-
-    p.vertex(here.x, here.y)
-  }
-  p.endShape(CLOSE)
-}
-
 function limitedSpreader(x, y) {
   p.strokeWeight(1)
   p.stroke(frameCol)
@@ -570,54 +423,9 @@ function slicer() {
   c.endShape(CLOSE)
 }
 
-function bottomUp() {
-  c.strokeWeight(splitWt)
-  c.beginShape()
-  for(let i = 0; i < centerDens+1; i++) {
-    y = map(i, 0, centerDens, h, 0)
-    c.curveVertex(randomVal(-w*0.25, w*1.25), y)
-  }
-  c.endShape()
-}
-
 function partSlicer() {
   for(let i = 0; i < splitDens; i++) {
     c.line(randomVal(0, w), randomVal(0, h), randomVal(0, w), randomVal(0, h))
-  }
-}
-
-function symPartSlicer() {
-  
-  for(let i = 0; i < 1; i++) {
-    c.stroke('red')
-    angA = randomVal(0, 360)
-    disA = randomVal(0, h)
-    angB = randomVal(0, 360)
-    disB = randomVal(0, h)
-    ptA = ptFromAng(center.x, center.y, dir+angA, disA)
-    ptB = ptFromAng(center.x, center.y, dir+angB, disB)
-
-  
-
-  ptA2 = ptFromAng(center.x, center.y, dir-angA, disA)
-  ptB2 = ptFromAng(center.x, center.y, dir-angA, disB)
-
-    // c.line(randomVal(0, w), randomVal(0, h), randomVal(0, w), randomVal(0, h))
-    c.line(ptA.x, ptA.y, ptB.x, ptB.y)
-    c.line(ptA2.x, ptA2.y, ptB2.x, ptB2.y)
-  }
-}
-
-function concentricGuide(x, y) {
-  numRings = randomInt(3, 15)
-  for(let i = 0; i < numRings; i++) {
-    
-
-    rad = map(i, 0, numRings, h*1.75, 0)
-    c.noFill()
-    c.strokeWeight(padding)
-    c.stroke('black')
-    c.circle(x, y, rad)
   }
 }
 
@@ -625,38 +433,6 @@ function circleSlicer() {
   for(let i = 0; i < splitDens; i++) {
     c.circle(randomVal(0, w), randomVal(0, h), randomVal(100, 800))
   }
-}
-
-function cSpiral(x, y, r) {
-  dens = 1000
-  numSegs = randomInt(5, 20)
-  sz = 100
-  spiralIntensity = randomVal(-180, 180)
-  angOff = randomVal(0, 360)
-  for(let j = 0; j < dens; j++) {
-    szMod = randomVal(0.25, 1)//map(j, 0, dens, 1, 0.5)
-    rad = map(j, 0, dens, 0, r/2)
-    diam = TWO_PI*(rad/4)
-    sz = (diam/numSegs)//*szMod
-    angOff += spiralIntensity/dens
-    for(let i = 0; i < 360; i+=360/numSegs) {
-      here = ptFromAng(x, y, i+angOff, rad)
-      c.circle(here.x, here.y, sz)
-    }
-  }
-  
-}
-
-function randAlpha() {
-  c.strokeWeight(100)
-  c.stroke('black')
-  c.rectMode(CENTER)
-  c.textAlign(CENTER, CENTER)
-  here = createVector(randomVal(0, w), randomVal(0, h))
-  c.textSize(randomVal(100, 1600))
-  theChar = randChar()
-  console.log(theChar)
-  c.text(theChar, here.x, here.y)
 }
 
 function shaper(x, y, r) {
@@ -675,99 +451,16 @@ function shaper(x, y, r) {
   c.endShape(CLOSE)
 }
 
-function shaperGrid() {
-  cols = 1//randomInt(1, 10)
-  rows = 1//randomInt(1, 10)
-  cellW = (w-(marg*2))/cols
-  cellH = (h-(marg*2))/rows
-  sz = min([cellW, cellH])*0.9
-  for(let y = 0; y < rows; y++) {
-    for(let x = 0; x < cols; x++) {
-      shaper(marg+x*cellW+cellW/2, marg+y*cellH+cellH/2, sz)
-    }
-  }
-}
-
-function radGrad() {
-  lCol = chroma(bgc).brighten(0.).hex()
-  dCol = chroma(randColor()).darken(0.).hex()
-  for(let i = 0; i < w; i++) {
-    r = map(i, 0, w, radNeeded*2, 0)
-    num = map(i, 0, w, 0, 1)
-    col = chroma.mix(dCol, lCol, num).hex()
-    p.fill(col)
-    p.noStroke()
-    p.circle(center.x, center.y, r)
-  }
-}
-
-function radialShapes(x, y) {
-
-  for(let i = 0; i<360; i+= 360/30) {
-    thisRad = randomVal(10, 300)
-    here = ptFromAng(x, y, i, (randomVal(0, h)))
-    there = ptFromAng(x, y, i, (randomVal(0, h)))
-    val = randomVal(0, 255)
-    p.stroke(chroma(val, val, val).alpha(0.1).hex())
-    p.strokeWeight(randomVal(0, 10))
-    p.line(here.x, here.y, there.x, there.y)
-  }
-}
-
-function vGrad() {
-  cellH = h-(marg*2)
-  cellW = w-(marg*2)
-  theCol = truePal[0]
-  cols = [theCol, bgc] 
-  shuffCols = shuff(cols)
-  for(let i = 0; i < cellH; i++) {
-    n = map(i, 0, cellH, 0, 1)
-    col = chroma.mix(shuffCols[0], shuffCols[1], n).alpha(0.5).hex()
-    p.stroke(col)
-    p.strokeWeight(1)
-    p.line(marg, marg+i, w-marg, marg+i)
-  }
-}
-
-function bgRays(x, y) {
-  num = randomInt(5, 20)
-  startAng = randomVal(0, 360)
-  rad = radNeeded
-  rayMidPt = randomVal(-0.9, 0)
-  val = 255
-  c.fill(255)
-  c.noStroke()
-  c.strokeWeight(10)
-  c.beginShape()
-  for(let i = 0; i < 360; i++) {
-    sine = sin(i*num)
-    if(sine < rayMidPt) {
-      here = ptFromAng(x, y, i+startAng, rad)
-    } else {
-      here = ptFromAng(x, y, i+startAng, 0)
-    }
-    c.vertex(here.x, here.y)
-  }
-  c.endShape(CLOSE)
-}
-
-function bgBlots() {
-  p.fill(truePal[0])
-  for(let i = 0; i < 10; i++) {
-    p.circle(randomVal(0, w), randomVal(0, h), randomVal(200, 500))
-  }
-}
-
 function cables() {
-  velocity = vel//randomVal(0.5, 2)
+  velocity = vel
   startSz = h*randomVal(0.75, 1.5)
   dir = angBetween(center.x, center.y, w/2, h/2)
   c.fill('white')
   c.noStroke()
   dens = 5000
-  expo = randomVal(0.8, 1.0)
-  ns = randomVal(0.0005, 0.01)//0.005
-  numCables = randomInt(8, 30)//randomInt(2, 10)
+  expo = randomVal(0.725, 1.0)
+  ns = randomVal(0.0005, 0.01)
+  numCables = randomInt(8, 30)
   startAng = randomVal(0, 360)
   sourceLoc = ptFromAng(center.x, center.y, dir, startSz*velocity)
   for(let i = 0; i < dens; i++) {
@@ -788,56 +481,45 @@ function cables() {
       xMod = cos(j+startAng+spin)*rad
       yMod = sin(j+startAng+spin)*rad
       diam = TWO_PI*(rad/8)
-      sz = cableSize//map(i, 0, dens, 20, 20)//(diam/numCables)
+      sz = cableSize
       
       c.circle(x+xMod, y+yMod, sz)
     }
   }
 }
 
-
-
-//square grid BG (contrast in structure)
-function gridBG() {
-  p.rectMode(CENTER)
-  p.noFill()
-  p.stroke(truePal[0])
-  p.strokeWeight(1)
-  rows = randomInt(3, 100)
-  cols = randomInt(3, 100)
-  cellW = (w-(marg*2))/cols
-  cellH = (h-(marg*2))/rows
-  for(let y = 0; y < rows; y++) {
-    for(let x = 0; x < cols; x++) {
-      p.rect(marg+(cellW*x)+(cellW/2), marg+(cellH*y)+(cellH/2), cellW, cellH)
-    }
+//cloudy bg
+function clouds() {
+  dens = 4000
+  ns = randomVal(0.005, 0.001)
+  p.noStroke()
+  for(let i = 0; i < dens; i++) {
+    here = createVector(randomVal(0, w), randomVal(0, h))
+    n = map(noise(here.x*(ns), here.y*(ns*2)), 0, 1, -0.5, 1)
+    col = chroma.mix(skyCol, bgc, 0.0).hex()
+    p.fill(chroma(col).alpha((0.025*n)+randomVal(0.0001, -0.0001)).hex())
+    p.circle(here.x, here.y, randomVal(100, 400))
   }
 }
 
-//offset dot matrix bg (childlike)
-
-//interlocking sine wave bg (brainwaves)
-
-//cloudy bg
-function clouds() {
-  dens = randomInt(800, 2000)
-  col = chroma.mix(skyCol, bgc, 0.5).hex()
-  p.fill(chroma(col).alpha(0.05+randomVal(0.0001, -0.0001)).hex())
+function marbled() {
+  dens = 4000
+  col = chroma.mix(skyCol, bgc, 0.0).hex()
+  p.fill(chroma(col).alpha((0.025)+randomVal(0.0001, -0.0001)).hex())
   p.noStroke()
   for(let i = 0; i < dens; i++) {
-    p.circle(randomVal(0, w), randomVal(0, h), randomVal(100, 400))
+    here = createVector(randomVal(0, w), randomVal(0, h))
+    p.circle(here.x, here.y, randomVal(100, 400))
   }
 }
 
 //show a bit of the horizon with some curvature
-
 function horizon() {
   p.fill(chroma('black').alpha(0.05).hex())
   horiz = h*randomVal(0.5, 0.85)
   p.beginShape()
   p.vertex(0, horiz)
   p.curveVertex(0, horiz)
-  
   p.curveVertex(w/2, horiz-30)
   p.curveVertex(w, horiz)
   p.curveVertex(w, horiz)

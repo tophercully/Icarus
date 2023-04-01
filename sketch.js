@@ -24,7 +24,7 @@ dists = []
 
 //parameters
 shapeRad = w*randomVal(0.05, 0.2)
-cableSize = randomVal(20, 40)
+cableSize = randomVal(8, 20)
 splitDens = randomInt(20, 50)
 console.log(splitDens)
 centerDens = 10
@@ -34,12 +34,13 @@ colorChance = 0.5
 cutMode = randomInt(1, 3)
 padding = 5
 splitWt = 100
+roundingMod = randomVal(20, 100)
 
 
 if(dayMode == true) {
   numStars = randomInt(50, 100)
 } else {
-  numStars = 5000//randomInt(2000, 5000)
+  numStars = randomInt(2000, 5000)
   
 }
 
@@ -102,7 +103,8 @@ function draw() {
     p.circle(randomVal(0, w), randomVal(0, h), randomVal(0.5, 5))
     }
     //draw clouds
-    clouds()
+    // clouds()
+    marbled()
     //build horizon
     horizon()
     //create margin
@@ -112,8 +114,9 @@ function draw() {
     for(let i = 0; i < borderDens; i++) {
       p.stroke(chroma(bgc).alpha((2/borderDens)+randomVal(-0.001, 0.001)).hex())
       wt = map(i, 0, borderDens, marg*2, (marg*2)-70)
+      rounding = (wt*0.5)+roundingMod
       p.strokeWeight(wt)
-      p.rect((w/2), (h/2), w, h)
+      p.rect((w/2), (h/2), w, h, rounding, rounding, rounding, rounding)
     }
 
   
@@ -128,6 +131,7 @@ function draw() {
     c.strokeWeight(marg*0.666)
     c.noFill()
     c.rect(w/2, h/2, w-marg*0.666, h-marg*0.666)
+    c.rect(w/2, h/2, w-marg*0.666, h-marg*0.666, rounding, rounding, rounding, rounding)
 
     //Padding weight, minimum 4
     c.strokeWeight(padding)
@@ -148,19 +152,17 @@ function draw() {
     placer()
   }
 
-  perFrame = 3
+  perFrame = 2
   if(frameCount < numShapes/perFrame) {
     
     
     for(let i = 0; i < perFrame; i++) {
       shapes[((frameCount*perFrame))].show(0.9)
-    // console.log(shapes[frameCount].distFromCenter)
     }
     
   }
 
   //Post processing
-  //  copy(p, 0, 0, w, h, 0, 0, w, h)
    bgc = color(bgc)
    shader(shade)
    shade.setUniform("u_resolution", [w, h]);

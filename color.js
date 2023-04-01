@@ -280,20 +280,30 @@ for (let i = 0; i < pal.length-1; i++) {
     .hex();
 }
 
-skyDecider = fxrand()
-if(skyDecider < 0.2) {
-  skyColored = true
-} else {
-  skyColored = false
-}
-
-if(skyColored == true) {
-  skyCol = "#0068C1"
-}
-
 //Combine palettes and shuffle that full palette
 fullPal = [].concat(pal, darkerPal, lighterPal, warmerPal, coolerPal);
 truePal = shuff(pal, achro);
+
+skyDecider = 0.95//fxrand()
+
+if(skyDecider < 0.2) {
+  skyCol = "#8cbedc"//"#0068C1"
+} else if(skyDecider > 0.85) {
+  palPicked = false 
+  tries = 0
+  while (palPicked == false) {
+    skyPalCol = randColor()
+    dif = chroma.contrast(bgc, skyPalCol)
+    tries++
+    console.log(dif)
+      if(dif > 7) {
+      palPicked = true
+    }
+  }
+  skyCol = skyPalCol
+} else {
+  skyCol = frameCol
+}
 
 //Pass our palette back to the CSS spinner
 let root = document.documentElement;
