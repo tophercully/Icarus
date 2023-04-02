@@ -284,7 +284,7 @@ for (let i = 0; i < pal.length-1; i++) {
 fullPal = [].concat(pal, darkerPal, lighterPal, warmerPal, coolerPal);
 truePal = shuff(pal, achro);
 
-skyDecider = 0.95//fxrand()
+skyDecider = fxrand()
 
 if(skyDecider < 0.2) {
   skyCol = "#8cbedc"//"#0068C1"
