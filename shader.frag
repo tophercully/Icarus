@@ -8,9 +8,9 @@ varying vec2 vTexCoord;
 //textures and uniforms from p5
 uniform sampler2D p;
 uniform sampler2D c;
-uniform sampler2D ro;
 uniform vec2 u_resolution;
 uniform vec2 center;
+uniform bool textured;
 uniform float seed;
 uniform float seedB;
 uniform vec3 bgc;
@@ -67,6 +67,7 @@ float noise (in vec2 st) {
 void main() {
   vec2 uv = vTexCoord*u_resolution;
   vec2 st = vTexCoord;
+  vec2 stNoise = vTexCoord;
   vec2 st1 = vTexCoord;
   vec2 st2 = vTexCoord;
   vec2 st3 = vTexCoord;
@@ -101,21 +102,11 @@ void main() {
   stExpand.y = 1.0 - stExpand.y;
 
   //Image Expansion
-  // //get angle between center and current px
-  // float ang = (acos(dot([stExpand.x], center.xy)));
-  // //get distance between center and current px
-  // float pxDis = distance(stExpand.xy, center.xy);
-  // //find how far to push this px
-  // float pushDis = map(pxDis, 0.0, 1.0, 0.0, 0.1);
-  // //move px by angle and pushDis
-  // stExpand.x += cos(ang)*pushDis;
-  // stExpand.y += sin(ang)*pushDis;
   float zoom = 0.8;
   float pxDis = distance(stExpand.xy, center.xy);
   float pushMult = map(pxDis, 0.0, 1.0, 0.0, 0.1);
   float spreadDis = map(pow(pxDis, 3.0), 0.0, pow(0.6, 3.0), 0.0, 0.04);
   float spreadInc = spreadDis/12.0;
-  st = (st - center) * (1.0+spreadInc*13.0) + center;
   st1 = (st1 - center) * (1.0+(spreadInc*12.0)) + center;
   st2 = (st2 - center) * (1.0+(spreadInc*11.0)) + center;
   st3 = (st3 - center) * (1.0+(spreadInc*10.0)) + center;
@@ -129,23 +120,8 @@ void main() {
   st11 = (st11 - center) * (1.0+(spreadInc*2.0)) + center;
   st12 = (st12 - center) * (1.0+(spreadInc*1.0)) + center;
 
-  // st = (st - center) * (1.0+(spreadInc*1.0)) + center;
-  
-
-
-  //get rotation value from ro
-  vec4 texRo = texture2D(p, st);
-  float rot = texRo.r;
-  //form noise
-  // st.xy += (random(st.xy)*0.001)-0.0005;
   float dis = 0.0025;
   float ns = 3.0;
-  float warp1 = map(noise(seed+st.xy*ns), 0.0, 1.0, -dis, dis);
-  float warp2 = map(noise(seedB+st.xy*ns), 0.0, 1.0, -dis, dis);
-  float warp3 = map(noise(seed+st.xy*ns), 0.0, 1.0, -dis*4.0, dis*4.0);
-  // st1.xy += warp1;
-  // st2.xy += warp2;
-  // st3.xy += warp3;
 
   vec4 texP = texture2D(p, stExpand);
   vec4 texSpreadA = texture2D(p, st1);
@@ -164,12 +140,11 @@ void main() {
 
 
   //color noise
-  float noiseGray = map(random(stB.xy), 0.0, 1.0, -0.075, 0.075);
+  float noiseGray = map(random(stB.xy*0.9), 0.0, 1.0, -0.075, 0.075);
 
   vec3 color = vec3(0.0);
   vec3 colorA = vec3(0.0);
   vec3 colorB = vec3(0.0);
-  // vec3 mapCol = texPMap.rgb;
   vec3 final = vec3(0.0);
   float cLum = texC.r;
   if(cLum > -0.1) {
@@ -193,34 +168,19 @@ void main() {
     colorA = mix(colorA.rgb, texSpreadL.rgb, mixAmt);
     colorA = mix(colorA.rgb, texP.rgb, 0.2);
     color = mix(colorA.rgb, vec3(1.0, 1.0, 1.0), 0.1);
-    // color = colorA;
   } else {
     color = texP.rgb;
   }
 
-  // color = texP.rgb;
-  
-  // color = mix(color.rgb, texSpreadA.rgb, 0.05);
-  // color = mix(color.rgb, texSpreadA.rgb, 0.01);
-
-  //Draw margin
-  // float margX = marg;
-  // float margY = margX*0.8;
-  // if(stB.x < margX || stB.x > 1.0-margX || stB.y < margY || stB.y > 1.0-margY) {
-  //   color = vec3(bgc.r, bgc.g, bgc.b);
-  // }
   stPaper.y *= 3.0;
   float sine = sin(st.y*1200.0);
   float sinOff = map(noise(stPaper.xy*100.0), 0.0, 1.0, -0.6, 0.6);
   float randOff = map(random(st.xy), 0.0, 1.0, -0.5, 0.5);
-  if(sine+sinOff+randOff > 0.75) {
-    // color = adjustExposure(color, -0.05*noise(st.xy*100.0));
-  } else if( sine+sinOff+randOff < -0.75) {
+  if(sine+sinOff+randOff > 0.75 && textured == true) {
+    color = adjustExposure(color, -0.01*noise(st.xy*100.0));
+  } else if( sine+sinOff+randOff < -0.75 && textured == true) {
     color = adjustExposure(color, 0.05*noise(st.xy*100.0));
   }
-
-  // sampler2D newLayer = color;
-
   color = adjustContrast(color, 0.2);
 
   color += noiseGray;

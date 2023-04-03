@@ -46,7 +46,7 @@ function randChar() {
 
 function keyTyped() {
   if (key === "s" || key === "S") {
-    save("img.png");
+    save("Icarus.png");
   }
   if (key === "1") {
     window.history.replaceState('', '', updateURLParameter(window.location.href, "size", "1"));
@@ -59,6 +59,13 @@ function keyTyped() {
   if (key === "3") {
     window.history.replaceState('', '', updateURLParameter(window.location.href, "size", "3"));
     window.location.reload();
+  }
+  if (key === "t" || key === "T") {
+    if(textured == true) {
+      textured = false
+    } else if( textured == false) {
+      textured = true
+    }
   }
 }
 function updateURLParameter(url, param, paramVal)
@@ -138,8 +145,9 @@ function limitedSpreader(x, y) {
   angNS = randomVal(0.1, 0.5)
   cancelled = false
   totalSz = 0
+  inc = 360/20
 
-  for(let i = 0 ; i < 360; i+=20) {
+  for(let i = 0 ; i < 360; i+=inc) {
     xOff = map(cos(i), -1, 1, 0, noiseMax)
     yOff = map(sin(i), -1, 1, 0, noiseMax)
     rad = 0
@@ -149,7 +157,7 @@ function limitedSpreader(x, y) {
     while(tripped == false) {
       rad += 1
       here = ptFromAng(x, y, i, rad)
-      colBase = c.get(here.x, here.y)
+      colBase = c.get((here.x), here.y)
       colCheck = colBase[0]
       if(colCheck == 0) {
         tripped = true
@@ -158,13 +166,14 @@ function limitedSpreader(x, y) {
         
       }
     }
-    totalSz += rad
-    if(totalSz/(360/20) < 1) {
-      cancelled = true
-    }
-    noiseHere = ptFromAng(x, y, i, (rad*edgeNoise))
+    noiseHere = ptFromAng(x, y, i, (rad*edgeNoise)+padding)
     p.vertex(noiseHere.x, noiseHere.y)
+    totalSz += rad
   }
+  if(totalSz/(360/inc) < 10) {
+    cancelled = true
+  }
+  
   if(cancelled == false) {
     p.endShape(CLOSE)
   }
@@ -178,8 +187,6 @@ function limitedLines(x, y) {
   startAng = randomInt(0, 360)
   p.strokeCap(SQUARE)
   p.strokeWeight(randomVal(1, 5))
-  // p.stroke(frameCol)
-  // p.noStroke()
   noiseMax = 50
   phase = randomVal(0, 100000000)
   phaseB = randomVal(0, 100000000)
@@ -239,7 +246,7 @@ function limitedLines(x, y) {
     ptsB[i] = here
   }
 
-  if(totalSz/(180/numLines) < 20) {
+  if(totalSz/(180/numLines) < 10) {
     cancelled = true
   }
   if(cancelled == false) {
@@ -345,8 +352,6 @@ function limitedFlower(x, y) {
     noiseHere = ptFromAng(x, y, i, (rad*edgeNoise)*flowMod)
     
     p.vertex(noiseHere.x, noiseHere.y)
-    
-    
   }
   if(totalSz/(360/2) < 2) {
     cancelled = true
@@ -395,30 +400,20 @@ function placer() {
   tries = 0
   samp = []
   ang = 0
-  while(numPlaced < numShapes) {
-    ang+=randomVal(-100, 100)
-    radNow = map(pow(numPlaced, 1.5), 0, pow(numShapes, 1.5), randomVal(0, shapeRad/2), radNeeded)
+  foundPt = false
+  for(let i = 0 ; i < numShapes; i++) {
+    ang = randomInt(dir+55, dir-55)
+    radNow = map(i, 0, numShapes, randomVal(0, shapeRad/2), radNeeded)
     here = ptFromAng(center.x, center.y, ang, radNow)
-    samp = c.get(here.x, here.y)
-    if(samp[0] == 255) {
-      shapes[numPlaced] = new Shape(here.x, here.y, numPlaced)
+      shapes[i] = new Shape(Math.floor(here.x), Math.floor(here.y), numPlaced)
       numPlaced++
-    }
-    tries++
-    if(tries > 10000) {
-      numShapes = numPlaced
-      return
-    }
   }
 }
 
 function slicer() {
   c.beginShape()
   for(let i = 0; i < splitDens; i++) {
-    xVal = fxrand()
-    yVal = fxrand()
-    y = map(pow(yVal, 0.5), 0, pow(1, 0.5), -h*0.25, h*1.25)
-    c.curveVertex(randomVal(-w*0.25, w*1.25), y)
+    c.curveVertex(randomVal(-w*0.25, w*1.25), randomVal(-h*0.25, h*1.25))
   }
   c.endShape(CLOSE)
 }
@@ -437,8 +432,7 @@ function circleSlicer() {
 
 function shaper(x, y, r) {
   numSides = randomInt(3, 5)
-
-  startAng = angBetween(w/2, h/2, center.x, center.y)//randomVal(0, 360)
+  startAng = angBetween(w/2, h/2, center.x, center.y)
   c.fill('white')
   c.noStroke()
   c.stroke('black')
@@ -454,14 +448,13 @@ function shaper(x, y, r) {
 function cables() {
   velocity = vel
   startSz = h*randomVal(0.75, 1.5)
-  dir = angBetween(center.x, center.y, w/2, h/2)
   c.fill('white')
   c.noStroke()
   dens = 5000
-  expo = randomVal(0.725, 1.0)
+  expo = randomVal(0.775, 1.0)
   ns = randomVal(0.0005, 0.01)
   numCables = randomInt(8, 30)
-  startAng = randomVal(0, 360)
+  startAng = randomInt(0, 360)
   sourceLoc = ptFromAng(center.x, center.y, dir, startSz*velocity)
   for(let i = 0; i < dens; i++) {
     x = map(i, 0, dens, sourceLoc.x, center.x)
@@ -488,23 +481,9 @@ function cables() {
   }
 }
 
-//cloudy bg
-function clouds() {
-  dens = 4000
-  ns = randomVal(0.005, 0.001)
-  p.noStroke()
-  for(let i = 0; i < dens; i++) {
-    here = createVector(randomVal(0, w), randomVal(0, h))
-    n = map(noise(here.x*(ns), here.y*(ns*2)), 0, 1, -0.5, 1)
-    col = chroma.mix(skyCol, bgc, 0.0).hex()
-    p.fill(chroma(col).alpha((0.025*n)+randomVal(0.0001, -0.0001)).hex())
-    p.circle(here.x, here.y, randomVal(100, 400))
-  }
-}
-
 function marbled() {
   dens = 4000
-  col = chroma.mix(skyCol, bgc, 0.0).hex()
+  col = skyCol
   p.fill(chroma(col).alpha((0.025)+randomVal(0.0001, -0.0001)).hex())
   p.noStroke()
   for(let i = 0; i < dens; i++) {
