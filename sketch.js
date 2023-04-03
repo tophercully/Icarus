@@ -55,8 +55,17 @@ if(dayMode == true) {
   numStars = randomInt(2000, 5000)
 }
 
+if(cutMode == 1) {
+  patType = "One-Liner"
+} else if(cutMode == 2) {
+  patType = "Slashes"
+} else {
+  patType = "Circular"
+}
+
 $fx.features({
   "Time": tiempo,
+  "Mosaic Pattern": patType,
   "Palette": palName,
   "Density": densScl,
   "Sky Blue": skyBlue,
