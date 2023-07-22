@@ -1,8 +1,36 @@
-w = 1600
-h = 2000
-marg = w*randomVal(0.05, 0.2)
+pageHeight = 15
+pageWidth = 11
+ratio = pageHeight/pageWidth
+w= 1600
+h = w*ratio
+marg = mmToPx(1.2*25.4)//randomVal(0.05, 0.2)
+
+mm = 0.35
+mmWt = ((mm/25.4)/pageHeight)*h
+
+minLines = 100
+maxLines = 200
+
+moldMeasX = []
+moldMeasY = []
 
 willReadFrequently = true
+
+allInks = [
+// '#d64926', //scarlett
+// "#FEEB23", //fw process yellow
+// '#60c365',
+// '#144722',
+// '#1d90fb', 
+// '#2368c2',//rowney blue
+'#bc5ecd',//velvet violet
+'black'
+]
+shuffInks = shuff(allInks)
+
+plotPal = [shuffInks[0], shuffInks[1], 'black']
+
+
 
 let shade;
 function preload() {
@@ -32,21 +60,24 @@ textured = true
 shapeRad = w*randomVal(0.05, 0.2)
 skew = randomVal(50, 150)
 cableSize = randomVal(8, 20)
-splitDens = randomInt(15, 50)
+splitDens = randomInt(10, 30)
 densScl = Math.ceil(map_range(splitDens, 15, 50, 1, 10))
 centerDens = 10
-numShapes = 1000
+numShapes = 2000
 vel = randomVal(1.1, 1.3)
 colorChance = 0.5
-cutMode = randomInt(1, 3)
-padding = 5
+cutMode = 3//randomInt(1, 3)
+padding = mmToPx(4)//map_range(splitDens, 10, 30, 30, 15)
 splitWt = 100
 roundingMod = randomVal(20, 100)
+moldMode = 3//randomInt(1, 6)
+slinkyGap = mmToPx(mm*0.5)
+numMolds = 10//randomVal(8, 15)
 
 for(let i = 0; i < numShapes+1; i++) {
   shapeCols[i] = randColor()
   shapeAccCols[i] = randColor()
-  shapeShapes[i] = randomInt(1, 3)
+  shapeShapes[i] = randomInt(0, 3)
 }
 
 if(dayMode == true) {
@@ -81,7 +112,7 @@ if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine
     isMobile = true;
 }
   pixelDensity(1)
-  createCanvas(w, h, WEBGL);
+  createCanvas(w, h, SVG);
   if(pxSize == 1) {
     pixelDensity(1)
   } else if (pxSize == 2) {
@@ -90,7 +121,7 @@ if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine
     pixelDensity(3)
   }
 
-  p = createGraphics(w, h)
+  p = createGraphics(w, h, SVG)
   c = createGraphics(w, h)
   angleMode(DEGREES)
   p.angleMode(DEGREES)
@@ -120,29 +151,19 @@ function draw() {
     p.randomSeed(nSeed)
     c.noiseSeed(nSeed)
     c.randomSeed(nSeed)
-    background(bgc)
+    // background(bgc)
     c.background('black')
-    p.background(bgc)
-    //draw stars
-    for(let i = 0; i < numStars; i++) {
-    p.fill(frameCol)
-    p.noStroke()
-    p.circle(randomVal(0, w), randomVal(0, h), randomVal(0.5, 5))
-    }
-    //draw clouds
-    marbled()
-    //build horizon
-    horizon()
+    
     //create margin
-    p.rectMode(CENTER)
-    p.noFill()
-    borderDens = 50
+    rectMode(CENTER)
+    noFill()
+    borderDens = 5
     for(let i = 0; i < borderDens; i++) {
-      p.stroke(chroma(bgc).alpha((2/borderDens)+randomVal(-0.001, 0.001)).hex())
+      stroke(chroma(bgc).alpha((2/borderDens)+randomVal(-0.001, 0.001)).hex())
       wt = map(i, 0, borderDens, marg*2, (marg*2)-70)
       rounding = (wt*0.5)+roundingMod
-      p.strokeWeight(wt)
-      p.rect((w/2), (h/2), w, h, rounding, rounding, rounding, rounding)
+      strokeWeight(wt)
+      // p.rect((w/2), (h/2), w, h, rounding, rounding, rounding, rounding)
     }
 
   
@@ -150,33 +171,67 @@ function draw() {
     c.rectMode(CENTER)
     //declare safe space
     c.fill('white')
-    cables()
+    // cables()
+    startSz =     h*randomVal(0.75, 1.5)
+    // c.circle(w/2, h/2, w/2)
+
+    
+    noFill()
+    stroke('black')
+    strokeWeight(mmWt)
+    // rect(w/2, h/2, w-marg*0.666, h-marg*0.666)
+
+    if(moldMode == 1) {
+      cGrid()
+    } else if(moldMode == 2) {
+      rectMold()
+    } else if(moldMode == 3) {
+      circMold()
+    } else if(moldMode == 4) {
+      invFlowerMold()
+    } else if(moldMode == 5) {
+      triMold()
+    } else if(moldMode == 6) {
+      c.background('white')
+    }
 
     //border weight
     c.stroke('black')
-    c.strokeWeight(marg*0.666)
+    c.strokeWeight(marg)
     c.noFill()
-    c.rect(w/2, h/2, w-marg*0.666, h-marg*0.666)
-    c.rect(w/2, h/2, w-marg*0.666, h-marg*0.666, rounding, rounding, rounding, rounding)
-
+    // c.fill('white')
+    //outer margin
+    c.rect(w/2, h/2, w-marg, h-marg)
+    //corner rounding margin
+    c.rect(w/2, h/2, w-marg, h-marg, rounding, rounding, rounding, rounding)
     //Padding weight, minimum 4
     c.strokeWeight(padding)
     for(let i = 0; i < 0; i++) {
 
-      c.line(randomVal(0, w), randomVal(0, h), randomVal(0, w), randomVal(0, h))
-      c.circle(randomVal(-w/2, w*1.5), randomVal(-h/2, h*1.5), randomVal(300, h))
+      // c.line(randomVal(0, w), randomVal(0, h), randomVal(0, w), randomVal(0, h))
+      // c.circle(randomVal(-w/2, w*1.5), randomVal(-h/2, h*1.5), randomVal(300, h))
     }
+    c.noFill()
+    c.stroke('black')
+    c.strokeWeight(padding)
+ 
     if(cutMode == 1) {
       slicer()
     } else if(cutMode == 2) {
       partSlicer()
-    } else {
+    } else if(cutMode == 3) {
       circleSlicer()
+    } else {
+      rectSlicer()
     }
   
-    shaper(center.x, center.y, shapeRad)
+    
+  
+    // shaper(center.x, center.y, shapeRad)
     placer()
+    
   }
+  
 
   perFrame = 5
   if(frameCount < numShapes/perFrame) {
@@ -184,29 +239,34 @@ function draw() {
     for(let i = 0; i < perFrame; i++) {
       shapes[((frameCount*perFrame))+i].show()
     }
+    
   }
-
+  // copy(p, 0, 0, w, h, 0, 0, w, h)
   //Post processing
-   bgc = color(bgc)
-   shader(shade)
-   shade.setUniform("u_resolution", [w, h]);
-   shade.setUniform("p", p);
-   shade.setUniform("c", c);
-   shade.setUniform("center", [center.x/w, center.y/h])
-   shade.setUniform("seed", seedA);
-   shade.setUniform("textured", textured);
-   shade.setUniform("seedB", seedB);
-   shade.setUniform("marg", map(marg, 0, w, 0, 1));
-   shade.setUniform("bgc", [
-     bgc.levels[0] / 255,
-     bgc.levels[1] / 255,
-     bgc.levels[2] / 255,
-   ]);
+  //  bgc = color(bgc)
+  //  shader(shade)
+  //  shade.setUniform("u_resolution", [w, h]);
+  //  shade.setUniform("p", p);
+  //  shade.setUniform("c", c);
+  //  shade.setUniform("center", [center.x/w, center.y/h])
+  //  shade.setUniform("seed", seedA);
+  //  shade.setUniform("textured", textured);
+  //  shade.setUniform("seedB", seedB);
+  //  shade.setUniform("marg", map(marg, 0, w, 0, 1));
+  //  shade.setUniform("bgc", [
+  //    bgc.levels[0] / 255,
+  //    bgc.levels[1] / 255,
+  //    bgc.levels[2] / 255,
+  //  ]);
 
-   rect(0, 0, w, h)
+  //  rect(0, 0, w, h)
    if(frameCount > numShapes/perFrame && previewTriggered == false) {
     fxpreview()
     previewTriggered = true
+    // save()
+    console.log('done')
    }
+
+   
    
 }
