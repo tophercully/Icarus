@@ -61,12 +61,17 @@ function keyTyped() {
     window.history.replaceState('', '', updateURLParameter(window.location.href, "size", "3"));
     window.location.reload();
   }
-  if (key === "t" || key === "T") {
-    if(textured == true) {
-      textured = false
-    } else if( textured == false) {
-      textured = true
-    }
+  if (key === "v" || key === "V") {
+    window.history.replaceState('', '', updateURLParameter(window.location.href, "renderType", "2"));
+    window.location.reload();
+  }
+  if (key === "p" || key === "P") {
+    window.history.replaceState('', '', updateURLParameter(window.location.href, "renderType", "1"));
+    window.location.reload();
+  }
+  if (key === "w" || key === "W") {
+    window.history.replaceState('', '', updateURLParameter(window.location.href, "penSize", "35"));
+    window.location.reload();
   }
 }
 function updateURLParameter(url, param, paramVal)
@@ -115,7 +120,7 @@ function updateURLParameter(url, param, paramVal)
 }
 
 function randColor() {
-  return truePal[randomInt(0, truePal.length-1)]
+  return plotPal[randomInt(0, plotPal.length-1)]
 }
 
 function angBetween(x1, y1, x2, y2) {
@@ -171,201 +176,152 @@ function setStrokeMM(mm) {
   strokeWeight(weightNow)
 }
 
+function setPen(pen) {
+  stroke(pen.hex)
+  mmWt = mmToPx(pen.sz)
+  strokeWeight(mmWt)
+  slinkyGap = mmToPx(pen.sz*0.75)
+
+}
+
 ////////////////////////////////////////
 
-function limitedSpreader(x, y) {
-  // strokeWeight(1)
-  strokeWeight(mmWt)
-  // stroke(frameCol)
-  // noStroke()
-  beginShape()
-  noiseMax = 50
-  phase = randomVal(0, 100000000)
-  phaseB = randomVal(0, 100000000)
-  angNS = randomVal(0.1, 0.5)
-  cancelled = false
-  totalSz = 0
-  inc = 360/100
-
-  for(let i = 0 ; i < 360; i+=inc) {
-    xOff = map(cos(i), -1, 1, 0, noiseMax)
-    yOff = map(sin(i), -1, 1, 0, noiseMax)
-    rad = 0
-    radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
-    edgeNoise = 1//map(noise(i*0.05, phase), 0, 1, 0.98, 1)
-    tripped = false
-    while(tripped == false) {
-      rad += 1
-      here = ptFromAng(x, y, i, rad)
-      colBase = c.get((here.x), here.y)
-      colCheck = colBase[0]
-      if(colCheck == 0) {
-        tripped = true
-        rad -= 0
-        here = ptFromAng(x, y, i, rad)
-        
-      }
-    }
-    noiseHere = ptFromAng(x, y, i, (rad*edgeNoise))
-    vertex(noiseHere.x, noiseHere.y)
-    totalSz += rad
-  }
-  if(totalSz/(360/inc) < 10) {
-    cancelled = true
-  }
-  
-  if(cancelled == false) {
-    endShape(CLOSE)
-  }
-  
-}
-
-function limitedLines(x, y) {
+function slinkyFill(x, y) {
   ptsA = []
   ptsB = []
-  numLines = 180/randomInt(minLines, maxLines)
+  centerSpacing = 1.0
   startAng = randomInt(0, 360)
-  // strokeCap(SQUARE)
-  strokeWeight(1)
-  strokeWeight(mmWt)
-  noiseMax = 50
-  phase = randomVal(0, 100000000)
-  phaseB = randomVal(0, 100000000)
-  angNS = randomVal(0.1, 0.5)
-  cancelled = false
-  totalSz = 0
-
-  for(let i = 0 ; i < 180; i+=numLines) {
-    xOff = map(cos(i), -1, 1, 0, noiseMax)
-    yOff = map(sin(i), -1, 1, 0, noiseMax)
-    rad = 0
-    rad2 = 0
-    radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
-    edgeNoise = map(noise(i*0.05, phase), 0, 1, 0.98, 1)
-    tripped = false
-    tripped2 = false
-    while(tripped == false) {
-      rad += 1
-      here = ptFromAng(x, y, i, rad)
-      colBase = c.get(here.x, here.y)
-      colCheck = colBase[0]
-      if(colCheck == 0) {
-        tripped = true
-        rad -= 0
-        here = ptFromAng(x, y, i, rad)
-        
-      }
-    }
-    totalSz += rad
-    noiseHere = ptFromAng(x, y, i, (rad*edgeNoise))
-    ptsA[i] = here
-  }
-
-  for(let i = 0 ; i < 180; i+=numLines) {
-    xOff = map(cos(i), -1, 1, 0, noiseMax)
-    yOff = map(sin(i), -1, 1, 0, noiseMax)
-    rad = 0
-    rad2 = 0
-    radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
-    edgeNoise = 1//map(noise(i*0.05, phase), 0, 1, 0.98, 1)
-    tripped = false
-    tripped2 = false
-    while(tripped == false) {
-      rad += 1
-      here = ptFromAng(x, y, -i, rad)
-      colBase = c.get(here.x, here.y)
-      colCheck = colBase[0]
-      if(colCheck == 0) {
-        tripped = true
-        rad -= 0
-        here = ptFromAng(x, y, -i, rad)
-        
-      }
-    }
-    totalSz += rad
-    noiseHere = ptFromAng(x, y, -i, (rad*edgeNoise))
-    ptsB[i] = here
-  }
-
-  if(totalSz/(180/numLines) < 10) {
-    cancelled = true
-  }
-  if(cancelled == false) {
-    for(let i = 0; i < 180; i+=numLines) {
-      line(ptsA[i].x, ptsA[i].y, ptsB[i].x, ptsB[i].y)
-    }
-  }
-  
-
-}
-
-function limitedLinesFill(x, y) {
-  ptsA = []
-  ptsB = []
   strokeJoin(ROUND)
   numLines = 180/randomInt(minLines, maxLines)
   startAng = randomInt(0, 360)
-  // strokeCap(SQUARE)
-  strokeWeight(1)
-  strokeWeight(mmWt)
   noiseMax = 50
   phase = randomVal(0, 100000000)
   phaseB = randomVal(0, 100000000)
   angNS = randomVal(0.1, 0.5)
   cancelled = false
   totalSz = 0
+
+  //left space
+  tries = 0
+  trippedLeft = false
+  nowPos = createVector(x, y)
+  colCheck = c.get(nowPos.x, nowPos.y)[0]
+  rad = 0
+  while(trippedLeft == false) {
+    rad++
+    nowPos = ptFromAng(x, y, -180, rad)
+    colCheck = c.get(nowPos.x, nowPos.y)[0]
+    if(colCheck != 255) {
+      trippedLeft = true
+      leftPt = nowPos
+    }
+  }
+  //right space
+  tries = 0
+  trippedRight = false
+  nowPos = createVector(x, y)
+  rad = 0
+  while(trippedRight == false) {
+    rad++
+    nowPos = ptFromAng(x, y, 0, rad)
+    colCheck = c.get(nowPos.x, nowPos.y)[0]
+    colCheck = c.get(nowPos.x, nowPos.y)[0]
+    if(colCheck != 255) {
+      trippedRight = true
+      rightPt = nowPos
+    }
+  }
+  //top space
+  tries = 0
+  trippedTop = false
+  nowPos = createVector(x, y)
+  colCheck = c.get(nowPos.x, nowPos.y)[0]
+  rad = 0
+  while(trippedTop == false) {
+    rad++
+    nowPos = ptFromAng(x, y, -90, rad)
+    colCheck = c.get(nowPos.x, nowPos.y)[0]
+    if(colCheck != 255) {
+      trippedTop = true
+      topPt = nowPos
+    }
+  }
+  //bottom space
+  tries = 0
+  trippedBot = false
+  nowPos = createVector(x, y)
+  colCheck = c.get(nowPos.x, nowPos.y)[0]
+  rad = 0
+  while(trippedBot == false) {
+    rad++
+    nowPos = ptFromAng(x, y, 90, rad)
+    colCheck = c.get(nowPos.x, nowPos.y)[0]
+    if(colCheck != 255) {
+      trippedBot = true
+      botPt = nowPos
+    }
+  }
+
+  centX = ptBetween(leftPt.x, leftPt.y, rightPt.x, rightPt.y, 0.5).x
+  centY = ptBetween(topPt.x, topPt.y, botPt.x, botPt.y, 0.5).y
+
+  newPt = ptBetween(x, y, centX, centY, centerSpacing)
+  x = newPt.x 
+  y = newPt.y  
   
   for(let i = 0 ; i < 180; i+=numLines) {
-    xOff = map(cos(i), -1, 1, 0, noiseMax)
-    yOff = map(sin(i), -1, 1, 0, noiseMax)
+    xOff = map(cos(startAng+i), -1, 1, 0, noiseMax)
+    yOff = map(sin(startAng+i), -1, 1, 0, noiseMax)
     rad = 0
     rad2 = 0
     radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
-    edgeNoise = map(noise(i*0.05, phase), 0, 1, 0.98, 1)
+    
     tripped = false
     tripped2 = false
     while(tripped == false) {
       rad += 1
-      here = ptFromAng(x, y, i, rad)
+      here = ptFromAng(x, y, startAng+i, rad)
       colBase = c.get(here.x, here.y)
       colCheck = colBase[0]
-      if(colCheck == 0) {
+      if(colCheck != 255) {
         tripped = true
         rad -= 0
-        here = ptFromAng(x, y, i, rad)
+        here = ptFromAng(x, y, startAng+i, rad)
         
       }
     }
     totalSz += rad
-    noiseHere = ptFromAng(x, y, i, (rad*edgeNoise))
+    noiseHere = ptFromAng(x, y, startAng+i, rad)
     ptsA[i] = here
   }
 
   for(let i = 0 ; i < 180; i+=numLines) {
-    xOff = map(cos(i), -1, 1, 0, noiseMax)
-    yOff = map(sin(i), -1, 1, 0, noiseMax)
+    xOff = map(cos(startAng+i), -1, 1, 0, noiseMax)
+    yOff = map(sin(startAng+i), -1, 1, 0, noiseMax)
     rad = 0
     rad2 = 0
     radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
-    edgeNoise = 1//map(noise(i*0.05, phase), 0, 1, 0.98, 1)
     tripped = false
     tripped2 = false
     while(tripped == false) {
       rad += 1
-      here = ptFromAng(x, y, -i, rad)
+      here = ptFromAng(x, y, startAng-i, rad)
       colBase = c.get(here.x, here.y)
       colCheck = colBase[0]
-      if(colCheck == 0) {
+      if(colCheck != 255) {
         tripped = true
         rad -= 0
-        here = ptFromAng(x, y, -i, rad)
+        here = ptFromAng(x, y, startAng-i, rad)
         
       }
     }
     totalSz += rad
-    noiseHere = ptFromAng(x, y, -i, (rad*edgeNoise))
+    noiseHere = ptFromAng(x, y, startAng-i, rad)
     ptsB[i] = here
   }
+
+  
+  
 
   if(totalSz/(180/numLines) < 10) {
     cancelled = true
@@ -375,27 +331,31 @@ function limitedLinesFill(x, y) {
     beginShape()
     lastPtA = createVector(0, 0)
     lastPtB = createVector(0, 0)
+    curveTightness(0.9)
     for(let i = 0; i < 180; i+=numLines) {
       distA = distBetween(ptsA[i].x, ptsA[i].y, lastPtA.x, lastPtA.y)
       distB = distBetween(ptsB[i].x, ptsB[i].y, lastPtB.x, lastPtB.y)
       drawing = true
       lineCheck(ptsA[i].x, ptsA[i].y, ptsB[i].x, ptsB[i].y)
       if(distA > slinkyGap && drawing != false) {
-        vertex(ptsA[i].x, ptsA[i].y)
+        curveVertex(ptsA[i].x, ptsA[i].y)
         lastPtA = ptsA[i]
       }
 
       if(distB > slinkyGap && drawing != false) {
-        vertex(ptsB[i].x, ptsB[i].y)
+        curveVertex(ptsB[i].x, ptsB[i].y)
         lastPtB = ptsB[i]
       }
       
     }
     endShape()
+    removeOption(x, y)
   }
   
   
 }
+
+
 
 function lineCheck(xA, yA, xB, yB) {
   length = Math.round(dist(xA, yA, xB, yB))
@@ -420,108 +380,7 @@ function lineCheck(xA, yA, xB, yB) {
   }
 }
 
-function limitedRays(x, y) {
-  strokeWeight(1)
-  // stroke(frameCol)
-  // noStroke()
-  beginShape()
-  numRays = randomInt(3, 20)
-  rayMidPt = randomVal(-1, 1)
-  depth = 0//randomVal(0, 0.9)
-  noiseMax = 50
-  phase = randomVal(0, 100000000)
-  phaseB = randomVal(0, 100000000)
-  angNS = randomVal(0.1, 0.5)
-  cancelled = false
-  totalSz = 0
- 
-  for(let i = 0 ; i < 360; i+=10) {
-    sine = sin(i*numRays)
-    xOff = map(cos(i), -1, 1, 0, noiseMax)
-    yOff = map(sin(i), -1, 1, 0, noiseMax)
-    rad = 0
-    radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
-    edgeNoise = 1//map(noise(i*0.05, phase), 0, 1, 0.98, 1)
-    tripped = false
-    while(tripped == false) {
-      rad += 1
-      here = ptFromAng(x, y, i, rad)
-      colBase = c.get(here.x, here.y)
-      colCheck = colBase[0]
-      if(colCheck == 0) {
-        tripped = true
-        rad -= 0
-        here = ptFromAng(x, y, i, rad)
-        
-      }
-    }
-    totalSz += rad
-    noiseHere = ptFromAng(x, y, i, (rad*edgeNoise))
-    if(sine < rayMidPt) {
-      vertex(noiseHere.x, noiseHere.y)
-    } else {
-      thisPt = midpoint(x, y, noiseHere.x, noiseHere.y, depth)
-      vertex(thisPt.x, thisPt.y)
-    }
-    
-  }
-  if(totalSz/(360/10) < 2) {
-    cancelled = true
-  }
-  if(cancelled == false) {
-    endShape(CLOSE)
-  }
-  
-}
 
-function limitedFlower(x, y) {
-  strokeWeight(1)
-  // stroke(frameCol)
-  // noStroke()
-  beginShape()
-  numPetals = randomInt(3, 15)
-  rayMidPt = randomVal(-1, 1)
-  depth = randomVal(0, 0.9)
-  noiseMax = 50
-  phase = randomVal(0, 100000000)
-  phaseB = randomVal(0, 100000000)
-  angNS = randomVal(0.1, 0.5)
-  cancelled = false
-  totalSz = 0
-  
-  for(let i = 0 ; i < 360; i+=2) {
-    flowerMod = map(sin(i*numPetals), -1, 1, 0, 1)
-    flowMod = map(pow(flowerMod, 0.1), 0, pow(1, 0.1), 0, 1)
-    xOff = map(cos(i), -1, 1, 0, noiseMax)
-    yOff = map(sin(i), -1, 1, 0, noiseMax)
-    rad = 0
-    radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
-    edgeNoise = 1//map(noise(i*0.05, phase), 0, 1, 0.98, 1)
-    tripped = false
-    while(tripped == false) {
-      rad += 1
-      here = ptFromAng(x, y, i, rad)
-      colBase = c.get(here.x, here.y)
-      colCheck = colBase[0]
-      if(colCheck == 0) {
-        tripped = true
-        rad -= 0
-        here = ptFromAng(x, y, i, rad)
-        
-      }
-    }
-    totalSz += rad
-    noiseHere = ptFromAng(x, y, i, (rad*edgeNoise)*flowMod)
-    
-    vertex(noiseHere.x, noiseHere.y)
-  }
-  if(totalSz/(360/2) < 2) {
-    cancelled = true
-  }
-  if(cancelled == false) {
-    endShape(CLOSE)
-  }
-}
 
 function removeOption(x, y) {
   c.strokeWeight(1)
@@ -566,8 +425,7 @@ function placer() {
   foundPt = false
   for(let i = 0 ; i < numShapes; i++) {
     ang = randomInt(0, 360)
-    radNow = map(i, 0, numShapes, randomVal(0, shapeRad/2), radNeeded)
-    here = createVector(randomVal(0, w), randomVal(0, h))//ptFromAng(center.x, center.y, ang, radNow)
+    here = createVector(randomVal(0, w), randomVal(0, h))
       shapes[i] = new Shape(Math.floor(here.x), Math.floor(here.y), numPlaced)
       numPlaced++
   }
@@ -575,8 +433,7 @@ function placer() {
 
 function slicer() {
   noFill()
-  stroke('black')
-  strokeWeight(mmWt)
+  setPen(black)
   c.strokeWeight(padding)
   // c.beginShape()
   points = []
@@ -588,7 +445,7 @@ function slicer() {
     pos = points[i]
     c.vertex(pos.x, pos.y)
     if(i != 0) {
-      sometimesLine(pos.x, pos.y, points[i-1].x, points[i-1].y)
+      plotLine(pos.x, pos.y, points[i-1].x, points[i-1].y, 255)
       c.line(pos.x, pos.y, points[i-1].x, points[i-1].y)
     }
     // vertex(pos.x, pos.y)
@@ -598,39 +455,199 @@ function slicer() {
   // endShape(CLOSE)
 }
 
-function partSlicer() {
-  c.strokeCap(SQUARE)
-  for(let i = 0; i < splitDens*3; i++) {
-    posA = createVector(randomVal(0, w), randomVal(0, h))
-    posB = createVector(randomVal(0, w), randomVal(0, h))
-    noFill()
-    stroke('black')
-    strokeWeight(mmWt)
-    sometimesLine(posA.x, posA.y, posB.x, posB.y)
-    c.line(posA.x, posA.y, posB.x, posB.y)
-    
-    // line(posA.x, posA.y, posB.x, posB.y)
+function slicerSym() {
+  noFill()
+  setPen(black)
+  c.strokeWeight(padding)
+  // c.beginShape()
+  points = []
+  symPoints = []
+  for(let i = 0; i < splitDens*2; i++) {
+    points[i] = createVector(randomVal(-w*0.25, w*1.25), randomVal(-h*0.25, h*1.25))
   }
   
+  // beginShape()
+  for(let i = 0; i < splitDens*2; i++) {
+    pos = points[i]
+    c.vertex(pos.x, pos.y)
+    if(i != 0) {
+      plotLine(pos.x, pos.y, points[i-1].x, points[i-1].y, 255)
+      c.line(pos.x, pos.y, points[i-1].x, points[i-1].y)
+    }
+
+    if(i != 0) {
+      plotLine(w-pos.x, pos.y, w-points[i-1].x, points[i-1].y, 255)
+      c.line(w-pos.x, pos.y, w-points[i-1].x, points[i-1].y)
+    }
+    // vertex(pos.x, pos.y)
+    
+  }
+  // c.endShape(CLOSE)
+  // endShape(CLOSE)
 }
 
 function circleSlicer() {
+  expoX = 1
+  expoY = 3
   for(let i = 0; i < splitDens*2; i++) {
-    x = randomVal(0, w)
-    y = randomVal(0, h)
-    r = randomVal(100, 2000)//randomVal(100, 800)
+    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)//randomVal(0, w)
+    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), 0, h)//randomVal(0, h)
+    
+    r = randomVal(100, 2000)
+    expoR = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)
+
+    posSlice = ptFromAng(w/2, h/2, randomVal(0, 360), expoR)
+    x = posSlice.x 
+    y = posSlice.y
     noFill()
-    stroke('black')
-    strokeWeight(mmWt)
-    sometimesCirc(x, y, r)
+    setPen(black)
+    plotCirc(x, y, r, 255)
     c.strokeWeight(padding)
     c.circle(x, y, r)
   }
 
 }
-function triSlicer() {
+
+function circleSlicerSym() {
+  expoX = 1
+  expoY = 3
+  for(let i = 0; i < splitDens; i++) {
+    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)//randomVal(0, w)
+    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), 0, h)//randomVal(0, h)
+    
+    r = randomVal(100, 2000)
+    expoR = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)
+
+    posSlice = ptFromAng(w/2, h/2, randomVal(0, 360), expoR)
+    x = posSlice.x 
+    y = posSlice.y
+    noFill()
+    setPen(black)
+    plotCirc(x, y, r, 255)
+    plotCirc(w-x, y, r, 255)
+    c.noFill()
+    c.strokeWeight(padding)
+    c.circle(x, y, r)
+    c.circle(w-x, y, r)
+
+    //sym circ
+    // sometimesCirc(w-x, y, r)
+    // c.strokeWeight(padding)
+    // c.circle(w-x, y, r)
+  }
 
 }
+
+function squareSlicer() {
+  expoX = 1
+  expoY = 3
+  
+  for(let i = 0; i < splitDens; i++) {
+    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)//randomVal(0, w)
+    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), 0, h)//randomVal(0, h)
+    
+    r = randomVal(100, 2000)//randomVal(100, 800)
+    expoR = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)
+
+    posSlice = ptFromAng(w/2, h/2, randomVal(0, 360), expoR)
+    x = posSlice.x 
+    y = posSlice.y
+    noFill()
+    setPen(black)
+    c.strokeWeight(padding)
+    plotRect(x, y, r, r, 255)
+    c.square(x, y, r)
+  }
+  
+
+}
+
+function diamondSlicer() {
+  expoX = 1
+  expoY = 3
+  for(let i = 0; i < splitDens; i++) {
+    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)//randomVal(0, w)
+    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), 0, h)//randomVal(0, h)
+    
+    r = randomVal(100, 2000)//randomVal(100, 800)
+    expoR = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)
+
+    posSlice = ptFromAng(w/2, h/2, randomVal(0, 360), expoR)
+    x = posSlice.x 
+    y = posSlice.y
+    noFill()
+    setPen(black)
+    c.strokeWeight(padding)
+    sometimesDiamond(x, y, r, r)
+    c.push()
+    c.translate(x, y)
+    c.rotate(45)
+    c.square(0, 0, r)
+    c.pop()
+  }
+  
+
+}
+
+function diamondSlicerSym() {
+  expoX = 1
+  expoY = 3
+  for(let i = 0; i < splitDens/2; i++) {
+    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)//randomVal(0, w)
+    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), 0, h)//randomVal(0, h)
+    
+    r = randomVal(100, 2000)//randomVal(100, 800)
+    expoR = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)
+
+    posSlice = ptFromAng(w/2, h/2, randomVal(0, 360), expoR)
+    x = posSlice.x 
+    y = posSlice.y
+    noFill()
+    setPen(black)
+    c.strokeWeight(padding)
+    sometimesDiamond(x, y, r, r, 255)
+    sometimesDiamond(w-x, y, r, r, 255)
+    c.push()
+    c.translate(x, y)
+    c.rotate(45)
+    c.square(0, 0, r)
+    c.pop()
+    c.push()
+    c.translate(w-x, y)
+    c.rotate(45)
+    c.square(0, 0, r)
+    c.pop()
+  }
+  
+
+}
+
+function squareSlicerSym() {
+  expoX = 1
+  expoY = 3
+  
+  for(let i = 0; i < splitDens/2; i++) {
+    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)//randomVal(0, w)
+    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), 0, h)//randomVal(0, h)
+    
+    r = randomVal(100, 2000)//randomVal(100, 800)
+    expoR = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)
+
+    posSlice = ptFromAng(w/2, h/2, randomVal(0, 360), expoR)
+    x = posSlice.x 
+    y = posSlice.y
+    setPen(black)
+    strokeWeight(mmWt)
+    c.strokeWeight(padding)
+    plotRect(x, y, r, r, 255)
+    plotRect(w-x, y, r, r, 255)
+    c.square(x, y, r)
+    c.square(w-x, y, r)
+  }
+  
+
+}
+
 function rectSlicer() {
   for(let i = 0; i < splitDens; i++) {
     c.rect(randomVal(0, w), randomVal(0, h), randomVal(100, 800), randomVal(100, 800))
@@ -638,66 +655,110 @@ function rectSlicer() {
   }
 }
 
-function shaper(x, y, r) {
-  numSides = randomInt(3, 5)
-  startAng = angBetween(w/2, h/2, center.x, center.y)
-  c.fill('white')
-  c.noStroke()
-  c.stroke('black')
-  c.strokeWeight(10)
-  c.beginShape()
-  for(let i = 0; i < 360; i+=360/numSides) {
-    here = ptFromAng(x, y, i+startAng, r/2)
-    c.vertex(here.x, here.y)
-  }
-  c.endShape(CLOSE)
-}
 
 
-function sometimesCirc(x, y, r) {
+function cPlotRect(x, y, wid, hei, val) {
   drawing = false
-  for(let i = 0; i < 360; i++) {
-    
-    xPos = cos(i)*r/2
-    yPos = sin(i)*r/2
+  for(let i = 0; i < 360*1.5; i++) {
+    squareMod = min(1 / abs(cos(i)), 1 / abs(sin(i)))
+
+    xPos = (cos(i)*wid/2)*squareMod
+    yPos = (sin(i)*hei/2)*squareMod
 
     pos = createVector(x+xPos, y+yPos)
     col = c.get(pos.x, pos.y)
-    // console.log(col[0])
-    if(col[0] != 0 && drawing == false) {
-      beginShape()
-      vertex(pos.x, pos.y)
+    if(pos.x > marg && pos.x < w-marg && pos.y > marg && pos.y < h-marg) {
+      inBounds = true
+    } else {
+      inBounds = false
+    }
+
+    if(col[0] == val && drawing == false && inBounds == true) {
+      c.beginShape()
+      c.vertex(pos.x, pos.y)
       drawing = true
-    } else if(col[0] != 0 && drawing == true) {
-      vertex(pos.x, pos.y)
-    } else if(col[0] == 0 && drawing == true) {
-      endShape()
+    } else if(col[0] == val && drawing == true && inBounds == true) {
+      c.vertex(pos.x, pos.y)
+    } else if(col[0] != val && drawing == true) {
+      c.endShape()
       drawing = false
-    } else if(i == 360) {
-      endShape()
+    } else if(i == 360 && drawing == true) {
+      c.vertex(pos.x, pos.y)
+      c.endShape()
+      drawing = false
     }
   }
+  endShape()
 }
 
-function sometimesLine(xA, yA, xB, yB) {
+
+
+function pack() {
+  circs = []
+  pad = 15
+  num = 50
+  numFound = 0
+  tries = 0
+  while(numFound < num) {
+    r = randomVal(100, 800)
+    x = randomVal(marg+r/2, w-(marg+r/2))
+    y = randomVal(marg+r/2, h-(marg+r/2))
+    here = new CircObjMold(x, y, r)
+    // console.log(here)
+    if(numFound == 0) {
+      circs.push(here)
+      numFound++
+    } else {
+      safe = true
+      for(let i = 0; i < circs.length; i++) {
+        other = circs[i]
+        thisDist = distBetween(here.pos.x, here.pos.y, other.pos.x, other.pos.y)
+        minDis = ((here.r+other.r)/2)
+
+        if(thisDist-pad < minDis && safe == true) {
+          safe = false
+        } 
+      }
+  
+      if(safe == true) {
+        circs.push(here)
+        console.log('found one')
+        numFound++
+      } else {
+        tries++
+        if(tries > 1000) {
+          num = numFound
+        }
+      }
+    }
+  }
+
+  for(let i = 0; i < circs.length-1; i++) {
+    circs[i].showCirc()
+  }
+  console.log(circs.length)
+}
+
+
+
+function cPlotLine(xA, yA, xB, yB, val) {
   length = Math.round(dist(xA, yA, xB, yB))
-  console.log(length)
   drawing = false
-  for(let i = 0; i < length/2; i++) {
-    perc = map(i, 0, length/2, 0, 1)
+  for(let i = 0; i < length; i++) {
+    perc = map(i, 0, length, 0, 1)
     checkPos = ptBetween(xA, yA, xB, yB, perc)
     col = c.get(checkPos.x, checkPos.y)
-    if(col[0] != 0 && drawing == false) {
-      beginShape()
-      vertex(checkPos.x, checkPos.y)
+    if(col[0] == val && drawing == false) {
+      c.beginShape()
+      c.vertex(checkPos.x, checkPos.y)
       drawing = true
-    } else if(col[0] == 0 && drawing == true) {
-      vertex(checkPos.x, checkPos.y)
-      endShape()
+    } else if(col[0] != val && drawing == true) {
+      c.vertex(checkPos.x, checkPos.y)
+      c.endShape()
       drawing = false
     } if(i == length) {
-      // vertex(checkPos.x, checkPos.y)
-      // endShape()
+      c.vertex(checkPos.x, checkPos.y)
+      c.endShape()
     }
   }
 }
@@ -706,44 +767,42 @@ function cGrid() {
   c.noStroke()
   c.fill('white')
   pad = 0//mmToPx(2)
-  cols = 4//randomInt(3, 10)
-  rows = 6//randomInt(3, 10)
+  cols = randomInt(3, 12)
+  rows = randomInt(3, 12)
   cellH = (h-(marg*2))/rows
   cellW = (w-(marg*2))/cols
-  gridRatio = randomVal(0.4, 0.6)
+  gridRatio = randomVal(0.333, 0.666)
+  cornerRound = min([cellW, cellH])*randomVal(0.0, 0.3)
   deciders = []
-  for(let i = 0; i < cols*rows; i++) {
-    if(i < (cols*rows)*gridRatio) {
-      deciders[i] = 0
-    } else {
-      deciders[i] = 1
-    }
-  }
+  
+  chance = 0.5
+  blankChance = 0.333
+  ns = randomVal(4, 10)
+  nsB = randomVal(4, 7)
+  phaseB = randomInt(0, 100000000000)
 
-  shuffDeciders = shuff(deciders)
   for(let y = 0; y < rows; y++) {
-    chance = map(pow(y, 10), 0, pow(rows, 10), 1, 0)
     for(let x = 0; x < cols; x++) {
+      xNormal = map(x, 0, cols, 0, 1)
+      yNormal = map(y, 0, rows, 0, 1)
+      n = noise(xNormal*ns, yNormal*ns)
+      nB = noise(xNormal*nsB, yNormal*nsB)
       index = (y*cols)+x
-      decider = shuffDeciders[index]
-      // decider = fxrand()
-      if(decider < chance) {
-        c.rect(marg+cellW*x+(cellW/2), marg+cellH*y+(cellH/2), cellW-pad, cellH-pad, 20)
+      if(n < chance) {
+        c.rect(marg+cellW*x+(cellW/2), marg+cellH*y+(cellH/2), cellW-pad, cellH-pad, cornerRound)
+      }
+
+      if(nB < blankChance) {
+        c.push()
+        c.fill('gray')
+        c.rect(marg+cellW*x+(cellW/2), marg+cellH*y+(cellH/2), cellW, cellH)
+        c.pop()
       }
     }
   }
 }
 
 function rectMold() {
-  // for(let i = 0; i < 10; i++) {
-  //   c.noStroke()
-  //   c.fill('white')
-  //   wid = randomVal(400, w/2)
-  //   hei = randomVal(400, h/2)
-  //   here = createVector(randomVal(marg+wid/2, (w-marg)-wid/2), randomVal(marg+hei/2, (h-marg)-hei/2))
-  //   c.rect(here.x, here.y, wid, hei, 100)
-  // }
-  
   molds = []
   for(let i = 0; i < numMolds; i++) {
     xPos = randomVal(0, 1)
@@ -754,22 +813,38 @@ function rectMold() {
   }
 
   for(let i = 0; i < numMolds; i++) {
-    c.noStroke()
+    // c.noStroke()
+    c.strokeWeight(3)
+    c.stroke('black')
     c.fill('white')
     molds[i].showRect()
   }
 }
 
-function circMold() {
-  // for(let i = 0; i < 10; i++) {
-  //   c.noStroke()
-  //   c.fill('white')
-  //   wid = randomVal(400, w/2)
-  //   hei = randomVal(400, h/2)
-  //   here = createVector(randomVal(marg+wid/2, (w-marg)-wid/2), randomVal(marg+hei/2, (h-marg)-hei/2))
-  //   c.circle(here.x, here.y, min([wid, hei]))
-  // }
+function plusMin(x, y, r) {
+  decider = fxrand()
+  offAng = 0
+  if(decider > 0.875) {
+    offAng = 45
+  }
+  left = ptFromAng(x, y, 180+offAng, r*0.3)
+  right = ptFromAng(x, y, 0+offAng, r*0.3)
+  up = ptFromAng(x, y, -90+offAng, r*0.3)
+  down = ptFromAng(x, y, 90+offAng, r*0.3)
+  setPen(black)
+  
+  if(decider > 0.5) {
+    plotLine(left.x, left.y, right.x, right.y, 0)
+  }
+  if(decider > 0.75) {
+    plotLine(up.x, up.y, down.x, down.y, 0)
+  }
+  
+  plotRing(x, y, r, r*0.9, false, 0)
+  
+}
 
+function circMold() {
   molds = []
   for(let i = 0; i < numMolds; i++) {
     xPos = randomVal(0, 1)
@@ -788,15 +863,6 @@ function circMold() {
 }
 
 function triMold() {
-  // for(let i = 0; i < 10; i++) {
-  //   c.noStroke()
-  //   c.fill('white')
-  //   wid = randomVal(400, w/2)
-  //   hei = randomVal(400, h/2)
-  //   here = createVector(randomVal(marg+wid/2, (w-marg)-wid/2), randomVal(marg+hei/2, (h-marg)-hei/2))
-  //   cTri(here.x, here.y, min([wid, hei]))
-  // }
-  
   molds = []
   for(let i = 0; i < numMolds; i++) {
     xPos = randomVal(0, 1)
@@ -823,44 +889,45 @@ function cTri(x, y, r) {
     nextXPos = cos(i+120)*r
     nextYPos = sin(i+120)*r
     c.vertex(x+xPos, y+yPos)
-    // sometimesLine(x+xPos, y+yPos, x+nextXPos, y+nextYPos)
   }
-  c.endShape()
+  c.endShape(CLOSE)
 }
 
-function flowerMold() {
-  c.noStroke()
+function flowerMold(x, y, r) {
+  // c.noStroke()
+  setPen(black)
   c.fill('white')
-  x = w/2
-  y = h/2
-  r = w/2
-  numPetals = randomInt(3, 10)
+  r *= 0.5
+  numPetals = univPetals
   expo = randomVal(0.75, 0.1)
   startAng = randomVal(0, 360)
   cent = randomVal(0, 0.5)
   c.beginShape()
+  beginShape()
   for(let i = 0; i < 360; i++) {
     flowMod = map(sin(i*numPetals), -1, 1, 0, 1)
     expoFlow = map(pow(flowMod, expo), 0, pow(1, expo), cent, 1)
     xPos = cos(i+startAng)*r*expoFlow
     yPos = sin(i+startAng)*r*expoFlow
     c.vertex(x+xPos, y+yPos)
+    vertex(x+xPos, y+yPos)
   }
   c.endShape()
+  endShape()
 }
 
-function invFlowerMold() {
-  c.noStroke()
+function invFlowerMold(x, y, r) {
+  // c.noStroke()
+  setPen(black)
+  noFill()
   c.fill('white')
-  x = w/2//randomVal(0, w)
-  y = h/2//randomVal(0, h)
-  r = w/2
-  wid = w/2
-  hei = h/2
-  numPetals = randomInt(3, 30)
+  wid = r/2
+  hei = r/2
+  numPetals = univPetals
   expo = 10//randomVal(0.75, 0.1)
   cent = randomVal(0, 0.5)
   startAng = randomVal(0, 360)
+  beginShape()
   c.beginShape()
   for(let i = 0; i < 360; i++) {
     flowMod = map(sin(i*numPetals), -1, 1, 1, 0)
@@ -868,6 +935,497 @@ function invFlowerMold() {
     xPos = cos(i+startAng)*wid*expoFlow
     yPos = sin(i+startAng)*hei*expoFlow
     c.vertex(x+xPos, y+yPos)
+    vertex(x+xPos, y+yPos)
+  }
+  c.endShape()
+  endShape()
+}
+
+function lineMold() {
+  molds = []
+  for(let i = 0; i < numMolds; i++) {
+    xPos = randomVal(0, 1)
+    yPos = randomVal(0, 1)
+    moldMeasX.push(xPos)
+    moldMeasY.push(yPos)
+    sz = (w-(marg*2))/numMolds
+    molds[i] = new Mold(xPos, yPos, sz, sz)
+  }
+  c.strokeCap(SQUARE)
+  c.strokeJoin(MITER)
+  c.curveTightness(randomVal(0.75, 1))
+  c.stroke('white')
+  c.strokeWeight(sz)
+  c.beginShape()
+  for(let i = 0; i < numMolds; i++) {
+    molds[i].dropVertex()
   }
   c.endShape()
 }
+
+function flowerGrid() {
+  cols = randomInt(2, 5)
+  rows = Math.round(cols*randomVal(1, 2))
+  cellW = (w-(marg*2))/cols
+  cellH = (h-(marg*2))/rows
+  numPetals = randomInt(3, 8)
+  numMissed = (cols*rows)*randomVal(0.1, 0.4)
+  misses = []
+  for(let i = 0; i < numMissed; i++) {
+    misses[i] = randomInt(0, cols*rows)
+  }
+  
+  for(let y = 0; y < rows; y++) {
+    for(let x = 0; x < cols; x++) {
+      index = (y*cols)+x
+      missed = false
+      for(let i = 0; i < misses.length-1; i++) {
+        if(misses[i] == index) {
+          missed = true
+        }
+      }
+
+      if(missed == false) {
+        thisOne = new CircObjMold(marg+x*cellW+(cellW/2), marg+y*cellH+(cellH/2), min([cellW, cellH])*0.9, numPetals)
+        thisOne.showCirc()
+      }
+    }
+  }
+}
+
+function bgConcentric() {
+  numLayers = randomInt(50, 80)
+  accent = randomInt(0, 19)
+  expoType = fxrand()
+  if(expoType > 0.5) {
+    expo = randomVal(3, 6)
+  } else {
+    expo = randomVal(0.5, 0.75)
+  }
+  endPos = createVector(randomVal(marg, w-marg), randomVal(marg, h-marg))
+  for(let i = 0; i < numLayers; i++) {
+
+    mod = map(pow(i, expo), 0, pow(numLayers, expo), 0, 1)
+    pos = createVector(map(mod, 0, 1, w/2, endPos.x), map(mod, 0, 1, h/2, endPos.y))
+    
+    if(fxrand() < 0.25) {
+      setPen(plotPal[randomInt(0, plotPal.length-1)])
+    } else {
+      setPen(black)
+    }
+    plotCirc(pos.x, pos.y, (h)*(1-mod), 0)
+  }
+}
+
+function bgConcentricOval() {
+  numLayers = randomInt(50, 80)
+  accent = randomInt(0, 19)
+  expoType = fxrand()
+  if(expoType > 0.5) {
+    expo = randomVal(4, 8)
+  } else {
+    expo = randomVal(0.25, 0.5)
+  }
+  endPos = createVector(randomVal(marg, w-marg), randomVal(marg, h-marg))
+
+  for(let i = 0; i < numLayers; i++) {
+
+    mod = map(pow(i, expo), 0, pow(numLayers, expo), 0, 1)
+    pos = createVector(map(mod, 0, 1, w/2, endPos.x), map(mod, 0, 1, h/2, endPos.y))
+    
+    if(fxrand() < 0.25) {
+      setPen(plotPal[randomInt(0, plotPal.length-1)])
+    } else {
+      setPen(black)
+    }
+    plotOval(pos.x, pos.y, (w*1.25)*(1-mod), (h*1.25)*(1-mod), 0)
+  }
+}
+
+function bgConcentricRect() {
+  numLayers = randomInt(50, 80)
+  accent = randomInt(0, 19)
+  expoType = fxrand()
+  if(expoType > 0.5) {
+    expo = randomVal(4, 8)
+  } else {
+    expo = randomVal(0.25, 0.5)
+  }
+  endPos = createVector(randomVal(marg, w-marg), randomVal(marg, h-marg))
+
+  for(let i = 0; i < numLayers; i++) {
+
+    mod = map(pow(i, expo), 0, pow(numLayers, expo), 0, 1)
+    pos = createVector(map(mod, 0, 1, w/2, endPos.x), map(mod, 0, 1, h/2, endPos.y))
+    
+    if(fxrand() < 0.25) {
+      setPen(plotPal[randomInt(0, plotPal.length-1)])
+    } else {
+      setPen(black)
+    }
+    plotRect(pos.x, pos.y, (w)*(1-mod), (h)*(1-mod), 0)
+  }
+}
+
+function bgGrid(dens) {
+  
+  xPos = randomVal(marg, w-marg)
+  yPos = randomVal(marg, h-marg)
+  cols = randomInt(10, 25)
+  rows = randomInt(10, 25)
+  
+  cellW = (w-(marg*2))/cols
+  cellH = (h-(marg*2))/rows
+  pad = min([cellW, cellH])*dens
+  numMissed = (cols*rows)*randomVal(0.75, 0.85)
+  misses = []
+  ns = randomVal(1, 5)
+  accentNum = randomInt(0, cols*rows)
+  for(let i = 0; i < numMissed; i++) {
+    misses[i] = randomInt(0, cols*rows)
+  }
+  
+  for(let y = 0; y < rows; y++) {
+    for(let x = 0; x < cols; x++) {
+      xNormal = map(x, 0, cols, 0, 1)
+      yNormal = map(y, 0, rows, 0, 1)
+      n = noise(xNormal*ns, yNormal*ns)
+      index = (y*cols)+x
+      missed = false
+      for(let i = 0; i < misses.length-1; i++) {
+        if(misses[i] == index) {
+          missed = true
+        }
+      }
+      if(fxrand() < 0.25) {
+        setPen(plotPal[randomInt(0, plotPal.length-1)])
+      } else {
+        setPen(black)
+      }
+
+      if(n > 0.5) {
+        if(fxrand() < 0.5) {
+          plotRectFill((marg)+x*cellW+(cellW/2), (marg)+y*cellH+(cellH/2), cellW-pad, cellH-pad, 0)
+        } else {
+          plotRect((marg)+x*cellW+(cellW/2), (marg)+y*cellH+(cellH/2), cellW-pad, cellH-pad, 0)
+        }
+      }
+    }
+  }
+}
+
+function bgSquareGrid(dens) {
+  
+  xPos = randomVal(marg, w-marg)
+  yPos = randomVal(marg, h-marg)
+  cols = randomInt(10, 25)
+  rows = Math.floor(cols*ratio)//randomInt(10, 25)
+  
+  cellW = (w-(marg*2))/cols
+  cellH = (h-(marg*2))/rows
+  pad = min([cellW, cellH])*dens
+  numMissed = (cols*rows)*randomVal(0.75, 0.85)
+  misses = []
+  ns = randomVal(1, 5)
+  accentNum = randomInt(0, cols*rows)
+  for(let i = 0; i < numMissed; i++) {
+    misses[i] = randomInt(0, cols*rows)
+  }
+  
+  for(let y = 0; y < rows; y++) {
+    for(let x = 0; x < cols; x++) {
+      xNormal = map(x, 0, cols, 0, 1)
+      yNormal = map(y, 0, rows, 0, 1)
+      n = noise(xNormal*ns, yNormal*ns)
+      index = (y*cols)+x
+      missed = false
+      for(let i = 0; i < misses.length-1; i++) {
+        if(misses[i] == index) {
+          missed = true
+        }
+      }
+      if(fxrand() < 0.25) {
+        setPen(plotPal[randomInt(0, plotPal.length-1)])
+      } else {
+        setPen(black)
+      }
+
+      if(n > 0.5) {
+        if(fxrand() < 0.5) {
+          plotRectFill((marg)+x*cellW+(cellW/2), (marg)+y*cellH+(cellH/2), cellW-pad, cellH-pad, 0)
+        } else {
+          plotRect((marg)+x*cellW+(cellW/2), (marg)+y*cellH+(cellH/2), cellW-pad, cellH-pad, 0)
+        }
+      }
+    }
+  }
+}
+
+function bgOvalGrid(dens) {
+  
+  xPos = randomVal(marg, w-marg)
+  yPos = randomVal(marg, h-marg)
+  cols = randomInt(10, 25)
+  rows = randomInt(10, 25)
+  
+  cellW = (w-(marg*2))/cols
+  cellH = (h-(marg*2))/rows
+  pad = min([cellW, cellH])*dens
+  numMissed = (cols*rows)*randomVal(0.75, 0.85)
+  misses = []
+  accentNum = randomInt(0, cols*rows)
+  for(let i = 0; i < numMissed; i++) {
+    misses[i] = randomInt(0, cols*rows)
+  }
+  ns = randomVal(1, 5)
+  
+  for(let y = 0; y < rows; y++) {
+    for(let x = 0; x < cols; x++) {
+      xNormal = map(x, 0, cols, 0, 1)
+      yNormal = map(y, 0, rows, 0, 1)
+      n = noise(xNormal*ns, yNormal*ns)
+      index = (y*cols)+x
+      missed = false
+      for(let i = 0; i < misses.length-1; i++) {
+        if(misses[i] == index) {
+          missed = true
+        }
+      }
+      if(fxrand() < 0.25) {
+        setPen(plotPal[randomInt(0, plotPal.length-1)])
+      } else {
+        setPen(black)
+      }
+
+      if(n > 0.5) {
+        plotOval((marg)+x*cellW+(cellW/2), (marg)+y*cellH+(cellH/2), cellW-pad, cellH-pad, 0)
+      }
+    }
+  }
+}
+
+function bgDotGrid(dens) {
+  
+  xPos = randomVal(marg, w-marg)
+  yPos = randomVal(marg, h-marg)
+  cols = randomInt(10, 25)
+  rows = randomInt(10, 25)
+  accentNum = randomInt(0, cols*rows)
+  cellW = (w-(marg*2))/cols
+  cellH = (h-(marg*2))/rows
+  pad = min([cellW, cellH])*dens
+  numMissed = (cols*rows)*randomVal(0.75, 0.85)
+  misses = []
+  for(let i = 0; i < numMissed; i++) {
+    misses[i] = randomInt(0, cols*rows)
+  }
+  ns = randomVal(1, 5)
+  for(let y = 0; y < rows; y++) {
+    for(let x = 0; x < cols; x++) {
+      xNormal = map(x, 0, cols, 0, 1)
+      yNormal = map(y, 0, rows, 0, 1)
+      n = noise(xNormal*ns, yNormal*ns)
+      index = (y*cols)+x
+      missed = false
+      for(let i = 0; i < misses.length-1; i++) {
+        if(misses[i] == index) {
+          missed = true
+        }
+      }
+      if(fxrand() < 0.25) {
+        setPen(plotPal[0])
+      } else {
+        setPen(black)
+      }
+
+      if(n > 0.5) {
+        if(fxrand() > 0.5) {
+          plotSpiral(xPos+(marg)+x*cellW+(cellW/2), yPos+(marg)+y*cellH+(cellH/2), min([cellH, cellW])-pad, min([cellH, cellW])-pad, false, 0)
+        } else {  
+          plotRing(xPos+(marg)+x*cellW+(cellW/2), yPos+(marg)+y*cellH+(cellH/2), min([cellH, cellW])-pad, min([cellH, cellW])-pad, false, 0)
+        }
+
+      }
+    }
+  }
+}
+
+function bgParticleGrid(dens) {
+  
+  xPos = randomVal(marg, w-marg)
+  yPos = randomVal(marg, h-marg)
+  cols = randomInt(10, 20)
+  rows = randomInt(10, 20)
+  accentNum = randomInt(0, cols*rows)
+  cellW = (w-(marg*2))/cols
+  cellH = (h-(marg*2))/rows
+  pad = min([cellW, cellH])*dens
+  numMissed = (cols*rows)*randomVal(0.75, 0.85)
+  misses = []
+  ns = randomVal(1, 5)
+  for(let i = 0; i < numMissed; i++) {
+    misses[i] = randomInt(0, cols*rows)
+  }
+  
+  for(let y = 0; y < rows; y++) {
+    for(let x = 0; x < cols; x++) {
+      xNormal = map(x, 0, cols, 0, 1)
+      yNormal = map(y, 0, rows, 0, 1)
+      n = noise(xNormal*ns, yNormal*ns)
+      index = (y*cols)+x
+      missed = false
+      if(fxrand() < 0.25) {
+        setPen(plotPal[randomInt(0, plotPal.length-1)])
+      } else {
+        setPen(black)
+      }
+      for(let i = 0; i < misses.length-1; i++) {
+        if(misses[i] == index) {
+          missed = true
+        }
+      }
+
+      if(n>0.5) {
+        plusMin(xPos+(marg)+x*cellW+(cellW/2), yPos+(marg)+y*cellH+(cellH/2), min([cellH, cellW])-pad)
+
+      }
+    }
+  }
+}
+
+function bgTriGrid(dens) {
+  
+  xPos = randomVal(marg, w-marg)
+  yPos = randomVal(marg, h-marg)
+  cols = randomInt(5, 20)
+  rows = randomInt(5, 20)
+  accentNum = randomInt(0, cols*rows)
+  cellW = (w-(marg*2))/cols
+  cellH = (h-(marg*2))/rows
+  pad = min([cellW, cellH])*dens
+  numMissed = (cols*rows)*randomVal(0.75, 0.85)
+  misses = []
+  for(let i = 0; i < numMissed; i++) {
+    misses[i] = randomInt(0, cols*rows)
+  }
+  ns = randomVal(1, 5)
+  for(let y = 0; y < rows; y++) {
+    for(let x = 0; x < cols; x++) {
+      xNormal = map(x, 0, cols, 0, 1)
+      yNormal = map(y, 0, rows, 0, 1)
+      n = noise(xNormal*ns, yNormal*ns)
+      index = (y*cols)+x
+      missed = false
+      if(fxrand() < 0.25) {
+        setPen(plotPal[randomInt(0, plotPal.length-1)])
+      } else {
+        setPen(black)
+      }
+      for(let i = 0; i < misses.length-1; i++) {
+        if(misses[i] == index) {
+          missed = true
+        }
+      }
+
+      if(n>0.5) {
+        plotTriFill(xPos+(marg)+x*cellW+(cellW/2), yPos+(marg)+y*cellH+(cellH/2), min([cellH, cellW])-pad, false, 0)
+
+      }
+    }
+  }
+}
+
+function vertLines() {
+  setPen(black)
+  numLines = randomInt(50, 80)
+  expoType = fxrand()
+  if(expoType > 0.5) {
+    expo = randomVal(4, 8)
+  } else {
+    expo = randomVal(0.25, 0.5)
+  }
+  
+  for(let i = 0; i < numLines; i++) {
+    y = map(pow(i, expo), 0, pow(numLines-1, expo), marg, h-(marg))
+    plotLine(0, y, w, y, 0)
+  }
+}
+
+function lines() {
+  x = w/2
+  y = w/2
+  startAng = randomInt(0, 3)*45
+  inc = 180/randomInt()
+  for(let i = 0; i < 181; i+=5) {
+    squareMod = (min(1 / abs(cos(i)), 1 / abs(sin(i))))
+
+    xA = x+(cos(startAng+i)*w/2)*squareMod
+    yA = y+(sin(startAng+i)*h/2)*squareMod
+    xB = x+(cos(startAng-i)*w/2)*squareMod
+    yB = y+(sin(startAng-i)*h/2)*squareMod
+    plotLine(xA, yA, xB, yB, 0)
+  }
+}
+
+function drawAGrid(dens) {
+  gridType = randomInt(1, 5) 
+  if(gridType == 1) {
+    bgGrid(dens)
+  } else if( gridType == 2) {
+    bgDotGrid(dens)
+  } else if( gridType == 3) {
+    bgParticleGrid(dens)
+  } else if( gridType == 4) {
+    bgTriGrid(dens)
+  } else if(gridType == 5) {
+    bgSquareGrid(dens)
+  }
+}
+
+function drawAShape(x, y, wid, hei, isolated, val) {
+  r = min([wid, hei])
+
+  shapeNum = randomInt(1, 4)
+  if(shapeNum == 1) {
+    plotRectFill(x, y, wid, hei, val)
+  } else if(shapeNum == 2) {
+    plotSpiral(x, y, r, isolated, 0)
+  } else if(shapeNum == 3) {
+    plusMin(x, y, r)
+  } else if(shapeNum == 4) {
+    plotTriFill(x, y, r, isolated, 0)
+  }
+
+}
+
+function drawConcentric() {
+  concentricType = randomInt(1, 4)
+    if(concentricType == 1) {
+      bgConcentric()
+    } else if(concentricType == 2) {
+      bgConcentricOval()
+    } else if(concentricType == 3) {
+      bgConcentricRect()
+    } else if(concentricType == 4) {
+      vertLines()
+    } 
+
+}
+
+// function cConcentric() {
+//   shuffOptions = shuff(['gray', 'black'])
+//   num = 3
+//   c.noStroke()
+//   c.fill("gray")
+//   c.rectMode(CENTER)
+//   wt = ((h/2)/num)/2
+//   c.strokeWeight(wt)
+//   for(let i = 0; i < num; i++) {
+    
+//     r = map(i, 0, num, wt, h*1.25)
+    
+    
+//     // c.circle(randomVal(0, w), randomVal(0, h), randomVal(300, 500))
+//     c.rect(randomVal(0, w), randomVal(0, h), randomVal(300, 800), randomVal(300, 1000))
+//   }
+// }
