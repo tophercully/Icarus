@@ -30,7 +30,7 @@ function plotLine(xA, yA, xB, yB, val) {
 
 function plotCirc(x, y, r, val) {
     drawing = false
-    for(let i = 0; i < 360*1.2; i++) {
+    for(let i = 0; i < 365; i++) {
       
       xPos = cos(i)*r/2
       yPos = sin(i)*r/2
@@ -52,7 +52,7 @@ function plotCirc(x, y, r, val) {
       } else if(col[0] != val && drawing == true) {
         endShape()
         drawing = false
-      } else if(i > 360*1.2) {
+      } else if(i > 365) {
         endShape()
       }
     }
@@ -65,7 +65,7 @@ function plotCirc(x, y, r, val) {
   
 function plotOval(x, y, wid, hei, val) {
     drawing = false
-    for(let i = 0; i < 360*1.2; i++) {
+    for(let i = 0; i < 365; i++) {
       xPos = cos(i)*wid/2
       yPos = sin(i)*hei/2
   
@@ -86,7 +86,7 @@ function plotOval(x, y, wid, hei, val) {
       } else if(col[0] != val && drawing == true) {
         endShape()
         drawing = false
-      } else if(i == 360*1.2 && drawing == true) {
+      } else if(i == 365 && drawing == true) {
         vertex(pos.x, pos.y)
         endShape()
         drawing = false
@@ -100,7 +100,7 @@ function plotOval(x, y, wid, hei, val) {
   
 function plotDiamond(x, y, wid, hei, val) {
     drawing = false
-    for(let i = 0; i < 360*1.2; i++) {
+    for(let i = 0; i < 365; i++) {
       squareMod = (min(1 / abs(cos(i)), 1 / abs(sin(i))))
   
       xPos = (cos(i+45)*wid/2)*squareMod
@@ -123,7 +123,7 @@ function plotDiamond(x, y, wid, hei, val) {
       } else if(col[0] != val && drawing == true) {
         endShape()
         drawing = false
-      } else if(i == 360*1.2 && drawing == true) {
+      } else if(i == 365 && drawing == true) {
         vertex(pos.x, pos.y)
         endShape()
         drawing = false
@@ -138,7 +138,7 @@ function plotDiamond(x, y, wid, hei, val) {
 function plotRect(x, y, wid, hei, val) {
     drawing = false
     
-    for(let i = 0; i < (360*1.2); i++) {
+    for(let i = 0; i < (365); i++) {
       squareMod = (min(1 / abs(cos(i)), 1 / abs(sin(i))))
       xPos = (cos(i)*wid/2)*squareMod
       yPos = (sin(i)*hei/2)*squareMod
@@ -160,7 +160,7 @@ function plotRect(x, y, wid, hei, val) {
       } else if(col[0] != val && drawing == true) {
         endShape()
         drawing = false
-      } else if(i == 360*1.2 && drawing == true) {
+      } else if(i == 365 && drawing == true) {
         vertex(pos.x, pos.y)
         endShape()
         drawing = false
@@ -346,6 +346,8 @@ function plotTriFill(x, y, r, isolated, val) {
     }
     
 }
+
+
   
   
 function cPlotSpiral(x, y, r, val) {

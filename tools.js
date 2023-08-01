@@ -178,26 +178,22 @@ function setStrokeMM(mm) {
 
 function setPen(pen) {
   stroke(pen.hex)
-  mmWt = mmToPx(pen.sz)
+  if(url.searchParams.has('penSize') == true) {
+    penSize = (url.searchParams.get('penSize'))/100
+  } else {
+    mmWt = mmToPx(pen.sz)
+  }
   strokeWeight(mmWt)
-  slinkyGap = mmToPx(pen.sz*0.75)
-
+  slinkyGap = mmToPx(pen.sz*0.5)
 }
 
 ////////////////////////////////////////
 
-function slinkyFill(x, y) {
+function slinkyFill(x, y, valA) {
   ptsA = []
   ptsB = []
-  centerSpacing = 1.0
-  startAng = randomInt(0, 360)
-  strokeJoin(ROUND)
-  numLines = 180/randomInt(minLines, maxLines)
-  startAng = randomInt(0, 360)
-  noiseMax = 50
-  phase = randomVal(0, 100000000)
-  phaseB = randomVal(0, 100000000)
-  angNS = randomVal(0.1, 0.5)
+  startAng = map(valA, 0, 1, 0, 360)
+  numLines = 180/200
   cancelled = false
   totalSz = 0
 
@@ -208,7 +204,7 @@ function slinkyFill(x, y) {
   colCheck = c.get(nowPos.x, nowPos.y)[0]
   rad = 0
   while(trippedLeft == false) {
-    rad++
+    rad+=2
     nowPos = ptFromAng(x, y, -180, rad)
     colCheck = c.get(nowPos.x, nowPos.y)[0]
     if(colCheck != 255) {
@@ -222,7 +218,7 @@ function slinkyFill(x, y) {
   nowPos = createVector(x, y)
   rad = 0
   while(trippedRight == false) {
-    rad++
+    rad+=2
     nowPos = ptFromAng(x, y, 0, rad)
     colCheck = c.get(nowPos.x, nowPos.y)[0]
     colCheck = c.get(nowPos.x, nowPos.y)[0]
@@ -238,7 +234,7 @@ function slinkyFill(x, y) {
   colCheck = c.get(nowPos.x, nowPos.y)[0]
   rad = 0
   while(trippedTop == false) {
-    rad++
+    rad+=2
     nowPos = ptFromAng(x, y, -90, rad)
     colCheck = c.get(nowPos.x, nowPos.y)[0]
     if(colCheck != 255) {
@@ -253,7 +249,7 @@ function slinkyFill(x, y) {
   colCheck = c.get(nowPos.x, nowPos.y)[0]
   rad = 0
   while(trippedBot == false) {
-    rad++
+    rad+=2
     nowPos = ptFromAng(x, y, 90, rad)
     colCheck = c.get(nowPos.x, nowPos.y)[0]
     if(colCheck != 255) {
@@ -264,22 +260,14 @@ function slinkyFill(x, y) {
 
   centX = ptBetween(leftPt.x, leftPt.y, rightPt.x, rightPt.y, 0.5).x
   centY = ptBetween(topPt.x, topPt.y, botPt.x, botPt.y, 0.5).y
-
-  newPt = ptBetween(x, y, centX, centY, centerSpacing)
-  x = newPt.x 
-  y = newPt.y  
+  x = centX 
+  y = centY
   
   for(let i = 0 ; i < 180; i+=numLines) {
-    xOff = map(cos(startAng+i), -1, 1, 0, noiseMax)
-    yOff = map(sin(startAng+i), -1, 1, 0, noiseMax)
     rad = 0
-    rad2 = 0
-    radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
-    
     tripped = false
-    tripped2 = false
     while(tripped == false) {
-      rad += 1
+      rad += 2
       here = ptFromAng(x, y, startAng+i, rad)
       colBase = c.get(here.x, here.y)
       colCheck = colBase[0]
@@ -287,7 +275,6 @@ function slinkyFill(x, y) {
         tripped = true
         rad -= 0
         here = ptFromAng(x, y, startAng+i, rad)
-        
       }
     }
     totalSz += rad
@@ -296,15 +283,10 @@ function slinkyFill(x, y) {
   }
 
   for(let i = 0 ; i < 180; i+=numLines) {
-    xOff = map(cos(startAng+i), -1, 1, 0, noiseMax)
-    yOff = map(sin(startAng+i), -1, 1, 0, noiseMax)
     rad = 0
-    rad2 = 0
-    radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
     tripped = false
-    tripped2 = false
     while(tripped == false) {
-      rad += 1
+      rad += 2
       here = ptFromAng(x, y, startAng-i, rad)
       colBase = c.get(here.x, here.y)
       colCheck = colBase[0]
@@ -312,7 +294,6 @@ function slinkyFill(x, y) {
         tripped = true
         rad -= 0
         here = ptFromAng(x, y, startAng-i, rad)
-        
       }
     }
     totalSz += rad
@@ -359,7 +340,6 @@ function slinkyFill(x, y) {
 
 function lineCheck(xA, yA, xB, yB) {
   length = Math.round(dist(xA, yA, xB, yB))
-  // console.log(length)
   drawing = true
   inTheWay = 0
   for(let i = 0; i < length/2; i++) {
@@ -367,8 +347,7 @@ function lineCheck(xA, yA, xB, yB) {
     checkPos = ptBetween(xA, yA, xB, yB, perc)
     col = c.get(checkPos.x, checkPos.y)
     if(col[0] == 0 && drawing == true) {
-      // vertex(checkPos.x, checkPos.y)
-      // endShape()
+      
       inTheWay++
     } 
     tolerance = 1
@@ -384,27 +363,19 @@ function lineCheck(xA, yA, xB, yB) {
 
 function removeOption(x, y) {
   c.strokeWeight(1)
-  c.fill('black')
+  c.fill(0)
   c.noStroke()
   c.beginShape()
-  noiseMax = 50
-  phase = randomVal(0, 100000000)
-  phaseB = randomVal(0, 100000000)
-  angNS = randomVal(0.1, 0.5)
 
   for(let i = 0 ; i < 360; i+=1) {
-    xOff = map(cos(i), -1, 1, 0, noiseMax)
-    yOff = map(sin(i), -1, 1, 0, noiseMax)
     rad = 0
-    radMod = constrain(map(noise(i*0.001, phase), 0, 1, 0.5, 2), 0, 1)
-    edgeNoise = map(noise(i*0.05, phase), 0, 1, 0.98, 1)
     tripped = false
     while(tripped == false) {
       rad += 1
       here = ptFromAng(x, y, i, rad)
       colBase = c.get(here.x, here.y)
       colCheck = colBase[0]
-      if(colCheck == 0) {
+      if(colCheck != 255) {
         tripped = true
         rad -= 0
         here = ptFromAng(x, y, i, rad)
@@ -419,28 +390,39 @@ function removeOption(x, y) {
 
 function placer() {
   numPlaced = 0
-  tries = 0
-  samp = []
-  ang = 0
-  foundPt = false
-  for(let i = 0 ; i < numShapes; i++) {
-    ang = randomInt(0, 360)
-    here = createVector(randomVal(0, w), randomVal(0, h))
-      shapes[i] = new Shape(Math.floor(here.x), Math.floor(here.y), numPlaced)
+  cols = splitDens
+  rows = splitDens
+  cellH = (h-(marg*2))/rows
+  cellW = (w-(marg*2))/cols
+  for(let y = 0; y < cols; y++) {
+    for(let x = 0; x < rows; x++) {
+      colNum = randomInt(0, 1)
+      valA = fxrand()
+      here = createVector(Math.floor(marg+x*cellW+(cellW/2)), Math.floor(marg+y*cellH+(cellH/2)))
+      if(c.get(here.x, here.y)[0] == 255) {
+        thisShape = new Shape(here.x, here.y, colNum, valA)
+        shapes.push(thisShape)
+      }
       numPlaced++
+    }
   }
+  numShapes = shapes.length-1
 }
 
 function slicer() {
   noFill()
   setPen(black)
   c.strokeWeight(padding)
-  // c.beginShape()
+
   points = []
+  xPts = shuff([0, w])
+  yPts = shuff([0, h])
+  expoX = randomVal(minExpo, maxExpo)
+  expoY = randomVal(minExpo, maxExpo)
   for(let i = 0; i < splitDens*3; i++) {
-    points[i] = createVector(randomVal(-w*0.25, w*1.25), randomVal(-h*0.25, h*1.25))
+    points[i] = createVector(map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w), map(pow(fxrand(), expoY), 0, pow(1, expoY), 0, h))
   }
-  // beginShape()
+
   for(let i = 0; i < splitDens*2; i++) {
     pos = points[i]
     c.vertex(pos.x, pos.y)
@@ -448,57 +430,56 @@ function slicer() {
       plotLine(pos.x, pos.y, points[i-1].x, points[i-1].y, 255)
       c.line(pos.x, pos.y, points[i-1].x, points[i-1].y)
     }
-    // vertex(pos.x, pos.y)
     
   }
-  // c.endShape(CLOSE)
-  // endShape(CLOSE)
+
 }
 
 function slicerSym() {
   noFill()
   setPen(black)
   c.strokeWeight(padding)
-  // c.beginShape()
+  
   points = []
   symPoints = []
-  for(let i = 0; i < splitDens*2; i++) {
-    points[i] = createVector(randomVal(-w*0.25, w*1.25), randomVal(-h*0.25, h*1.25))
+  xPts = shuff([0, w])
+  yPts = shuff([0, h])
+  expoX = randomVal(0.333, 3)
+  expoY = randomVal(0.333, 3)
+  for(let i = 0; i < splitDens*1.5; i++) {
+    points[i] = createVector(map(pow(fxrand(), expoX), 0, pow(1, expoX), xPts[0], xPts[1]), map(pow(fxrand(), expoY), 0, pow(1, expoY), yPts[0], yPts[1]))
   }
   
-  // beginShape()
-  for(let i = 0; i < splitDens*2; i++) {
+
+  for(let i = 0; i < splitDens; i++) {
     pos = points[i]
-    c.vertex(pos.x, pos.y)
+
     if(i != 0) {
       plotLine(pos.x, pos.y, points[i-1].x, points[i-1].y, 255)
+      plotLine(w-pos.x, pos.y, w-points[i-1].x, points[i-1].y, 255)
+
       c.line(pos.x, pos.y, points[i-1].x, points[i-1].y)
+      c.line(w-pos.x, pos.y, w-points[i-1].x, points[i-1].y)
     }
 
     if(i != 0) {
-      plotLine(w-pos.x, pos.y, w-points[i-1].x, points[i-1].y, 255)
-      c.line(w-pos.x, pos.y, w-points[i-1].x, points[i-1].y)
+      
     }
-    // vertex(pos.x, pos.y)
     
   }
-  // c.endShape(CLOSE)
-  // endShape(CLOSE)
 }
 
 function circleSlicer() {
-  expoX = 1
-  expoY = 3
+  xPts = shuff([0, w])
+  yPts = shuff([0, h])
+  expoX = randomVal(minExpo, maxExpo)
+  expoY = randomVal(minExpo, maxExpo)
   for(let i = 0; i < splitDens*2; i++) {
-    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)//randomVal(0, w)
-    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), 0, h)//randomVal(0, h)
-    
-    r = randomVal(100, 2000)
+    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), xPts[0], xPts[1])
+    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), yPts[0], yPts[1])
+    r = randomVal(100, 1000)
     expoR = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)
 
-    posSlice = ptFromAng(w/2, h/2, randomVal(0, 360), expoR)
-    x = posSlice.x 
-    y = posSlice.y
     noFill()
     setPen(black)
     plotCirc(x, y, r, 255)
@@ -509,18 +490,17 @@ function circleSlicer() {
 }
 
 function circleSlicerSym() {
-  expoX = 1
-  expoY = 3
+  xPts = shuff([0, w])
+  yPts = shuff([0, h])
+  expoX = randomVal(minExpo, maxExpo)
+  expoY = randomVal(minExpo, maxExpo)
   for(let i = 0; i < splitDens; i++) {
-    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)//randomVal(0, w)
-    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), 0, h)//randomVal(0, h)
-    
-    r = randomVal(100, 2000)
+    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), xPts[0], xPts[1])
+    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), yPts[0], yPts[1])
+    r = randomVal(100, 1000)
     expoR = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)
 
-    posSlice = ptFromAng(w/2, h/2, randomVal(0, 360), expoR)
-    x = posSlice.x 
-    y = posSlice.y
+    
     noFill()
     setPen(black)
     plotCirc(x, y, r, 255)
@@ -530,28 +510,23 @@ function circleSlicerSym() {
     c.circle(x, y, r)
     c.circle(w-x, y, r)
 
-    //sym circ
-    // sometimesCirc(w-x, y, r)
-    // c.strokeWeight(padding)
-    // c.circle(w-x, y, r)
   }
 
 }
 
 function squareSlicer() {
-  expoX = 1
-  expoY = 3
+  xPts = shuff([0, w])
+  yPts = shuff([0, h])
+  expoX = randomVal(minExpo, maxExpo)
+  expoY = randomVal(minExpo, maxExpo)
   
-  for(let i = 0; i < splitDens; i++) {
-    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)//randomVal(0, w)
-    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), 0, h)//randomVal(0, h)
-    
-    r = randomVal(100, 2000)//randomVal(100, 800)
+  for(let i = 0; i < splitDens*2; i++) {
+    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), xPts[0], xPts[1])
+    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), yPts[0], yPts[1])
+    r = randomVal(100, 1000)
     expoR = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)
 
-    posSlice = ptFromAng(w/2, h/2, randomVal(0, 360), expoR)
-    x = posSlice.x 
-    y = posSlice.y
+
     noFill()
     setPen(black)
     c.strokeWeight(padding)
@@ -563,22 +538,21 @@ function squareSlicer() {
 }
 
 function diamondSlicer() {
-  expoX = 1
-  expoY = 3
-  for(let i = 0; i < splitDens; i++) {
-    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)//randomVal(0, w)
-    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), 0, h)//randomVal(0, h)
-    
-    r = randomVal(100, 2000)//randomVal(100, 800)
+  xPts = shuff([0, w])
+  yPts = shuff([0, h])
+  expoX = randomVal(minExpo, maxExpo)
+  expoY = randomVal(minExpo, maxExpo)
+  for(let i = 0; i < splitDens*2; i++) {
+    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), xPts[0], xPts[1])
+    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), yPts[0], yPts[1])
+    r = randomVal(100, 1000)
     expoR = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)
 
-    posSlice = ptFromAng(w/2, h/2, randomVal(0, 360), expoR)
-    x = posSlice.x 
-    y = posSlice.y
+
     noFill()
     setPen(black)
     c.strokeWeight(padding)
-    sometimesDiamond(x, y, r, r)
+    plotDiamond(x, y, r, r, 255)
     c.push()
     c.translate(x, y)
     c.rotate(45)
@@ -590,23 +564,22 @@ function diamondSlicer() {
 }
 
 function diamondSlicerSym() {
-  expoX = 1
-  expoY = 3
-  for(let i = 0; i < splitDens/2; i++) {
-    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)//randomVal(0, w)
-    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), 0, h)//randomVal(0, h)
-    
-    r = randomVal(100, 2000)//randomVal(100, 800)
+  xPts = shuff([0, w])
+  yPts = shuff([0, h])
+  expoX = randomVal(minExpo, maxExpo)
+  expoY = randomVal(minExpo, maxExpo)
+  for(let i = 0; i < splitDens; i++) {
+    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), xPts[0], xPts[1])
+    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), yPts[0], yPts[1])
+    r = randomVal(100, 1000)
     expoR = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)
 
-    posSlice = ptFromAng(w/2, h/2, randomVal(0, 360), expoR)
-    x = posSlice.x 
-    y = posSlice.y
+   
     noFill()
     setPen(black)
     c.strokeWeight(padding)
-    sometimesDiamond(x, y, r, r, 255)
-    sometimesDiamond(w-x, y, r, r, 255)
+    plotDiamond(x, y, r, r, 255)
+    plotDiamond(w-x, y, r, r, 255)
     c.push()
     c.translate(x, y)
     c.rotate(45)
@@ -623,19 +596,19 @@ function diamondSlicerSym() {
 }
 
 function squareSlicerSym() {
-  expoX = 1
-  expoY = 3
+  xPts = shuff([0, w])
+  yPts = shuff([0, h])
+  expoX = randomVal(minExpo, maxExpo)
+  expoY = randomVal(minExpo, maxExpo)
   
-  for(let i = 0; i < splitDens/2; i++) {
-    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)//randomVal(0, w)
-    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), 0, h)//randomVal(0, h)
+  for(let i = 0; i < splitDens; i++) {
+    x = map(pow(fxrand(), expoX), 0, pow(1, expoX), xPts[0], xPts[1])
+    y = map(pow(fxrand(), expoY), 0, pow(1, expoY), yPts[0], yPts[1])
     
-    r = randomVal(100, 2000)//randomVal(100, 800)
+    r = randomVal(100, 1000)
     expoR = map(pow(fxrand(), expoX), 0, pow(1, expoX), 0, w)
 
-    posSlice = ptFromAng(w/2, h/2, randomVal(0, 360), expoR)
-    x = posSlice.x 
-    y = posSlice.y
+  
     setPen(black)
     strokeWeight(mmWt)
     c.strokeWeight(padding)
@@ -644,18 +617,7 @@ function squareSlicerSym() {
     c.square(x, y, r)
     c.square(w-x, y, r)
   }
-  
-
 }
-
-function rectSlicer() {
-  for(let i = 0; i < splitDens; i++) {
-    c.rect(randomVal(0, w), randomVal(0, h), randomVal(100, 800), randomVal(100, 800))
-
-  }
-}
-
-
 
 function cPlotRect(x, y, wid, hei, val) {
   drawing = false
@@ -704,7 +666,6 @@ function pack() {
     x = randomVal(marg+r/2, w-(marg+r/2))
     y = randomVal(marg+r/2, h-(marg+r/2))
     here = new CircObjMold(x, y, r)
-    // console.log(here)
     if(numFound == 0) {
       circs.push(here)
       numFound++
@@ -766,7 +727,7 @@ function cPlotLine(xA, yA, xB, yB, val) {
 function cGrid() {
   c.noStroke()
   c.fill('white')
-  pad = 0//mmToPx(2)
+  pad = 0
   cols = randomInt(3, 12)
   rows = randomInt(3, 12)
   cellH = (h-(marg*2))/rows
@@ -778,7 +739,7 @@ function cGrid() {
   chance = 0.5
   blankChance = 0.333
   ns = randomVal(4, 10)
-  nsB = randomVal(4, 7)
+  nsB = 4
   phaseB = randomInt(0, 100000000000)
 
   for(let y = 0; y < rows; y++) {
@@ -786,7 +747,7 @@ function cGrid() {
       xNormal = map(x, 0, cols, 0, 1)
       yNormal = map(y, 0, rows, 0, 1)
       n = noise(xNormal*ns, yNormal*ns)
-      nB = noise(xNormal*nsB, yNormal*nsB)
+      nB = noise(xNormal*nsB, yNormal*nsB, phaseB)
       index = (y*cols)+x
       if(n < chance) {
         c.rect(marg+cellW*x+(cellW/2), marg+cellH*y+(cellH/2), cellW-pad, cellH-pad, cornerRound)
@@ -802,35 +763,16 @@ function cGrid() {
   }
 }
 
-function rectMold() {
-  molds = []
-  for(let i = 0; i < numMolds; i++) {
-    xPos = randomVal(0, 1)
-    yPos = randomVal(0, 1)
-    moldMeasX.push(xPos)
-    moldMeasY.push(yPos)
-    molds[i] = new Mold(xPos, yPos, randomVal(200, (w-(marg*2))/2), randomVal(200, (h-(marg*2))/2))
-  }
-
-  for(let i = 0; i < numMolds; i++) {
-    // c.noStroke()
-    c.strokeWeight(3)
-    c.stroke('black')
-    c.fill('white')
-    molds[i].showRect()
-  }
-}
-
 function plusMin(x, y, r) {
   decider = fxrand()
   offAng = 0
   if(decider > 0.875) {
     offAng = 45
   }
-  left = ptFromAng(x, y, 180+offAng, r*0.3)
-  right = ptFromAng(x, y, 0+offAng, r*0.3)
-  up = ptFromAng(x, y, -90+offAng, r*0.3)
-  down = ptFromAng(x, y, 90+offAng, r*0.3)
+  left = ptFromAng(x, y, 180+offAng, r*0.35)
+  right = ptFromAng(x, y, 0+offAng, r*0.35)
+  up = ptFromAng(x, y, -90+offAng, r*0.35)
+  down = ptFromAng(x, y, 90+offAng, r*0.35)
   setPen(black)
   
   if(decider > 0.5) {
@@ -840,157 +782,8 @@ function plusMin(x, y, r) {
     plotLine(up.x, up.y, down.x, down.y, 0)
   }
   
-  plotRing(x, y, r, r*0.9, false, 0)
+  plotRing(x, y, r, r*0.95, false, 0)
   
-}
-
-function circMold() {
-  molds = []
-  for(let i = 0; i < numMolds; i++) {
-    xPos = randomVal(0, 1)
-    yPos = randomVal(0, 1)
-    moldMeasX.push(xPos)
-    moldMeasY.push(yPos)
-    sz = randomVal(400, (w-(marg*2))/2)
-    molds[i] = new Mold(xPos, yPos, sz, sz)
-  }
-
-  for(let i = 0; i < numMolds; i++) {
-    c.noStroke()
-    c.fill('white')
-    molds[i].showCirc()
-  }
-}
-
-function triMold() {
-  molds = []
-  for(let i = 0; i < numMolds; i++) {
-    xPos = randomVal(0, 1)
-    yPos = randomVal(0, 1)
-    moldMeasX.push(xPos)
-    moldMeasY.push(yPos)
-    sz = randomVal(400, (w-(marg*2))/2)
-    molds[i] = new Mold(xPos, yPos, sz, sz)
-  }
-
-  for(let i = 0; i < numMolds; i++) {
-    c.noStroke()
-    c.fill('white')
-    molds[i].showTri()
-  }
-}
-
-function cTri(x, y, r) {
-  orient = (180*randomInt(0, 3))+90
-  c.beginShape()
-  for(let i = -orient; i < orient; i+=360/3) {
-    xPos = cos(i)*r/2
-    yPos = sin(i)*r/2
-    nextXPos = cos(i+120)*r
-    nextYPos = sin(i+120)*r
-    c.vertex(x+xPos, y+yPos)
-  }
-  c.endShape(CLOSE)
-}
-
-function flowerMold(x, y, r) {
-  // c.noStroke()
-  setPen(black)
-  c.fill('white')
-  r *= 0.5
-  numPetals = univPetals
-  expo = randomVal(0.75, 0.1)
-  startAng = randomVal(0, 360)
-  cent = randomVal(0, 0.5)
-  c.beginShape()
-  beginShape()
-  for(let i = 0; i < 360; i++) {
-    flowMod = map(sin(i*numPetals), -1, 1, 0, 1)
-    expoFlow = map(pow(flowMod, expo), 0, pow(1, expo), cent, 1)
-    xPos = cos(i+startAng)*r*expoFlow
-    yPos = sin(i+startAng)*r*expoFlow
-    c.vertex(x+xPos, y+yPos)
-    vertex(x+xPos, y+yPos)
-  }
-  c.endShape()
-  endShape()
-}
-
-function invFlowerMold(x, y, r) {
-  // c.noStroke()
-  setPen(black)
-  noFill()
-  c.fill('white')
-  wid = r/2
-  hei = r/2
-  numPetals = univPetals
-  expo = 10//randomVal(0.75, 0.1)
-  cent = randomVal(0, 0.5)
-  startAng = randomVal(0, 360)
-  beginShape()
-  c.beginShape()
-  for(let i = 0; i < 360; i++) {
-    flowMod = map(sin(i*numPetals), -1, 1, 1, 0)
-    expoFlow = map(pow(flowMod, expo), 0, pow(1, expo), 1, cent)
-    xPos = cos(i+startAng)*wid*expoFlow
-    yPos = sin(i+startAng)*hei*expoFlow
-    c.vertex(x+xPos, y+yPos)
-    vertex(x+xPos, y+yPos)
-  }
-  c.endShape()
-  endShape()
-}
-
-function lineMold() {
-  molds = []
-  for(let i = 0; i < numMolds; i++) {
-    xPos = randomVal(0, 1)
-    yPos = randomVal(0, 1)
-    moldMeasX.push(xPos)
-    moldMeasY.push(yPos)
-    sz = (w-(marg*2))/numMolds
-    molds[i] = new Mold(xPos, yPos, sz, sz)
-  }
-  c.strokeCap(SQUARE)
-  c.strokeJoin(MITER)
-  c.curveTightness(randomVal(0.75, 1))
-  c.stroke('white')
-  c.strokeWeight(sz)
-  c.beginShape()
-  for(let i = 0; i < numMolds; i++) {
-    molds[i].dropVertex()
-  }
-  c.endShape()
-}
-
-function flowerGrid() {
-  cols = randomInt(2, 5)
-  rows = Math.round(cols*randomVal(1, 2))
-  cellW = (w-(marg*2))/cols
-  cellH = (h-(marg*2))/rows
-  numPetals = randomInt(3, 8)
-  numMissed = (cols*rows)*randomVal(0.1, 0.4)
-  misses = []
-  for(let i = 0; i < numMissed; i++) {
-    misses[i] = randomInt(0, cols*rows)
-  }
-  
-  for(let y = 0; y < rows; y++) {
-    for(let x = 0; x < cols; x++) {
-      index = (y*cols)+x
-      missed = false
-      for(let i = 0; i < misses.length-1; i++) {
-        if(misses[i] == index) {
-          missed = true
-        }
-      }
-
-      if(missed == false) {
-        thisOne = new CircObjMold(marg+x*cellW+(cellW/2), marg+y*cellH+(cellH/2), min([cellW, cellH])*0.9, numPetals)
-        thisOne.showCirc()
-      }
-    }
-  }
 }
 
 function bgConcentric() {
@@ -1119,7 +912,7 @@ function bgSquareGrid(dens) {
   xPos = randomVal(marg, w-marg)
   yPos = randomVal(marg, h-marg)
   cols = randomInt(10, 25)
-  rows = Math.floor(cols*ratio)//randomInt(10, 25)
+  rows = Math.floor(cols*ratio)
   
   cellW = (w-(marg*2))/cols
   cellH = (h-(marg*2))/rows
@@ -1208,12 +1001,12 @@ function bgDotGrid(dens) {
   
   xPos = randomVal(marg, w-marg)
   yPos = randomVal(marg, h-marg)
-  cols = randomInt(10, 25)
-  rows = randomInt(10, 25)
+  cols = randomInt(5, 25)
+  rows = randomInt(5, 25)
   accentNum = randomInt(0, cols*rows)
   cellW = (w-(marg*2))/cols
   cellH = (h-(marg*2))/rows
-  pad = min([cellW, cellH])*dens
+  pad = min([cellW, cellH])*(dens/2)
   numMissed = (cols*rows)*randomVal(0.75, 0.85)
   misses = []
   for(let i = 0; i < numMissed; i++) {
@@ -1259,7 +1052,7 @@ function bgParticleGrid(dens) {
   accentNum = randomInt(0, cols*rows)
   cellW = (w-(marg*2))/cols
   cellH = (h-(marg*2))/rows
-  pad = min([cellW, cellH])*dens
+  pad = min([cellW, cellH])*(dens/2)
   numMissed = (cols*rows)*randomVal(0.75, 0.85)
   misses = []
   ns = randomVal(1, 5)
@@ -1335,7 +1128,7 @@ function bgTriGrid(dens) {
   }
 }
 
-function vertLines() {
+function horizLines() {
   setPen(black)
   numLines = randomInt(50, 80)
   expoType = fxrand()
@@ -1351,19 +1144,19 @@ function vertLines() {
   }
 }
 
-function lines() {
-  x = w/2
-  y = w/2
-  startAng = randomInt(0, 3)*45
-  inc = 180/randomInt()
-  for(let i = 0; i < 181; i+=5) {
-    squareMod = (min(1 / abs(cos(i)), 1 / abs(sin(i))))
-
-    xA = x+(cos(startAng+i)*w/2)*squareMod
-    yA = y+(sin(startAng+i)*h/2)*squareMod
-    xB = x+(cos(startAng-i)*w/2)*squareMod
-    yB = y+(sin(startAng-i)*h/2)*squareMod
-    plotLine(xA, yA, xB, yB, 0)
+function vertLines() {
+  setPen(black)
+  numLines = randomInt(50, 80)
+  expoType = fxrand()
+  if(expoType > 0.5) {
+    expo = randomVal(4, 8)
+  } else {
+    expo = randomVal(0.25, 0.5)
+  }
+  
+  for(let i = 0; i < numLines; i++) {
+    x = map(pow(i, expo), 0, pow(numLines-1, expo), marg, w-(marg))
+    plotLine(x, 0, x, h, 0)
   }
 }
 
@@ -1399,7 +1192,7 @@ function drawAShape(x, y, wid, hei, isolated, val) {
 }
 
 function drawConcentric() {
-  concentricType = randomInt(1, 4)
+  concentricType = randomInt(1, 5)
     if(concentricType == 1) {
       bgConcentric()
     } else if(concentricType == 2) {
@@ -1408,24 +1201,9 @@ function drawConcentric() {
       bgConcentricRect()
     } else if(concentricType == 4) {
       vertLines()
+    } else if(concentricType == 5) {
+      horizLines()
     } 
 
 }
 
-// function cConcentric() {
-//   shuffOptions = shuff(['gray', 'black'])
-//   num = 3
-//   c.noStroke()
-//   c.fill("gray")
-//   c.rectMode(CENTER)
-//   wt = ((h/2)/num)/2
-//   c.strokeWeight(wt)
-//   for(let i = 0; i < num; i++) {
-    
-//     r = map(i, 0, num, wt, h*1.25)
-    
-    
-//     // c.circle(randomVal(0, w), randomVal(0, h), randomVal(300, 500))
-//     c.rect(randomVal(0, w), randomVal(0, h), randomVal(300, 800), randomVal(300, 1000))
-//   }
-// }

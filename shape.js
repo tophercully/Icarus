@@ -1,28 +1,17 @@
 class Shape {
-    constructor(x, y) {
+    constructor(x, y, colNum, valA, valB, valC, valD) {
         shapesDrawn++
         this.pos = createVector(x, y)
+        this.colNum = colNum
+        this.valA = valA 
+        this.valB = valB
+        this.valC = valC
+        this.valD = valD
     }
 
     show() {
-        this.skip = fxrand()
-        if(this.skip < 0.1) {
-            removeOption(this.pos.x, this.pos.y)
-        } else {
-            if(c.get(this.pos.x, this.pos.y)[0] == 255) {
-                if(fxrand() < colBalance) {
-                    setPen(plotPal[0])
-                } else {
-                    setPen(plotPal[1])
-                }
-                
-                slinkyFill(this.pos.x, this.pos.y)
-                if(sym == true) {
-                    slinkyFill(w-this.pos.x, this.pos.y)
-                }
-            }
-        }
-        
+        setPen(plotPal[this.colNum])
+        slinkyFill(this.pos.x, this.pos.y, this.valA, this.valB, this.valC, this.valD)
     }
 }
 

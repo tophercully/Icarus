@@ -5,7 +5,7 @@ red = {
 }
 
 orange = {
-  'hex': '#F8A02A',
+  'hex': '#ff9d1e',
   'name': 'Orange',
   'sz': 0.5,
 }
@@ -46,9 +46,9 @@ pink = {
   'sz': 0.5,
 }
 
-burntUmber = {
-  'hex': '#5C371D',
-  'name': 'Burnt Umber',
+burntSienna = {
+  'hex': '#8F360B',
+  'name': 'Burnt Sienna',
   'sz': 0.5,
 }
 
@@ -60,16 +60,15 @@ black = {
 
 
 allInks = [
-  // red,
+  red,
   orange,
-  // yellow,
-  // emerald, 
-  // sapGreen,
-  // cyan,
-  // ultramarine,
-  // pink,
-  // burntUmber,
-  // pink,
-  // burntUmber,
-  // black
+  yellow,
+  emerald, 
+  sapGreen,
+  cyan,
+  ultramarine,
+  pink,
+  pink,
+  burntSienna,
+  black
   ]

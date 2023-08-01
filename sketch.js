@@ -1,17 +1,10 @@
-//Changing size with url params
 url = new URL(window.location.href)
 urlParams = new URLSearchParams(url.search)
 //to change size of the pen, press 'w' and edit the penSize variable in url, in mm in tenths '35' for 0.35
 if(url.searchParams.has('penSize') == true) {
   penSize = (url.searchParams.get('penSize'))/100
 } else {
-  penSize = 0.35
-}
-//to change size of the canvas, add "&?canvasSize=3" to the url, declare in inches
-if(url.searchParams.has('canvasSize') == true) {
-  canvasSize = url.searchParams.get('canvasSize')
-} else {
-  canvasWidth = 11
+  penSize = 0.5
 }
 //changing render type
 if(url.searchParams.has('renderType') == true) {
@@ -35,22 +28,21 @@ pageHeight = 15
 ratio = pageHeight/pageWidth
 w= 1600
 h = w*ratio
-marg = mmToPx(1*25.4)//randomVal(0.05, 0.2)
-
+marg = mmToPx(1.25*25.4)
 mm = penSize
 mmWt = ((mm/25.4)/pageHeight)*h
 
 minLines = 100
 maxLines = 200
 
-moldMeasX = []
-moldMeasY = []
+
 
 willReadFrequently = true
 
 //color
 allInks = [
   red,
+  burntSienna,
   orange,
   pink,
   yellow,
@@ -58,15 +50,11 @@ allInks = [
   sapGreen,
   cyan,
   ultramarine,
-  burntUmber,
-  black
-  ]
+  black,
+]
 shuffInks = shuff(allInks)
-console.log(shuffInks[0].name, 'black')
 
-// black = shuffInks[0]
 plotPal = [shuffInks[0], black]
-colBalance = randomVal(0.15, 0.75)
 
 //declarations
 shapesDrawn = 0
@@ -75,9 +63,9 @@ dists = []
 previewTriggered = false
 
 //main controllers
-splitDens = randomInt(10, 20)
-moldMode = 1//randomInt(1, 3)
-cutMode = randomInt(1, 3)
+splitDens = randomInt(20, 40)
+minExpo = map_range(splitDens, 20, 40, 1.5, 3)
+maxExpo = map_range(splitDens, 20, 40, 1.5, 3)
 if(fxrand() < 0.25) {
   sym = true
 } else {
@@ -86,18 +74,13 @@ if(fxrand() < 0.25) {
 
 
 //parameters
-sym = false
-if(sym == true) {
-  numShapes = 1250
-} else {
-  numShapes = 2500
-}
-cutMode = randomInt(1, 3)
-padding = mmToPx(2)
-shapeDecider = randomInt(1, 3)
-univPetals = randomInt(4, 10)
-rounding = 150//200
+cutMode = randomInt(1, 4)
+maxPad = randomInt(8, 12)
+minPad = randomInt(4, 6)
+padding = map_range(splitDens, 20, 40, mmToPx(maxPad), mmToPx(minPad))
+rounding = 150
 numGrids = 3
+perFrame = 1
 
 if(cutMode == 1) {
   patType = "One-Liner"
@@ -105,17 +88,18 @@ if(cutMode == 1) {
   patType = "Circular"
 } else if(cutMode == 3) {
   patType = "Box"
+} else if(cutMode == 4) {
+  patType = "Diamond"
 } 
 
 
 //param translations
-densScl = Math.ceil(map_range(splitDens, 10, 20, 1, 10))
+densScl = Math.ceil(map_range(splitDens, 20, 40, 1, 10))
 $fx.features({
-  "Mosaic Pattern": patType,
-
+  "Cut Pattern": patType,
   "Density": densScl,
-
-
+  "Symmetrical": sym,
+  "Color": plotPal[0].name,
 })
 
 
@@ -138,7 +122,6 @@ seedB = randomVal(0, 10)
 nSeed = randomVal(0, 100000000000)
 
 function draw() {
-  blendMode(DARKEST)
   if(frameCount==1){
     noiseSeed(nSeed)
     randomSeed(nSeed)
@@ -159,14 +142,11 @@ function draw() {
     c.fill('white')
     startSz = h*randomVal(0.75, 1.5)
 
-    if(moldMode == 1) {
-      cGrid()
-    } else if(moldMode == 2) {
-      flowerGrid()
-    } else if(moldMode == 3) {
-      pack()
-    } 
+   
+
+    cGrid()
     
+  
 
     //border weight but backwards
     c.stroke('gray')
@@ -193,77 +173,48 @@ function draw() {
       drawAGrid(dens)
     }
 
-    
     drawConcentric()
-  
-    // bgConcentricRect()
-    // bgConcentricRect()
-    // c.save()
 
-  
-   
     //prep cut mode
     c.noFill()
     c.stroke('black')
     c.strokeWeight(padding)
     //cut mode
-    if(cutMode == 1) {
-      if(sym == true) {
+    if(sym == true) {
+      if(cutMode == 1) {
         slicerSym()
-      } else {
-        slicer()
-      }
-    } else if(cutMode == 2) {
-      if(sym == true) {
+      } else if(cutMode == 2) {
         circleSlicerSym()
-      } else {
-        circleSlicer()
-      }
-    } else if(cutMode == 3) {
-      if(sym == true) {
+      } else if(cutMode == 3) {
         squareSlicerSym()
-      } else {
-        squareSlicer()
-      }
-    } else if(cutMode == 4) {
-      if(sym == true) {
+      } else if(cutMode == 4) {
         diamondSlicerSym()
-      } else {
+      }
+    } else if(sym == false) {
+      if(cutMode == 1) {
+        slicer()
+      } else if(cutMode == 2) {
+        circleSlicer()
+      } else if(cutMode == 3) {
+        squareSlicer()
+      } else if(cutMode == 4) {
         diamondSlicer()
       }
-    } 
-
-    
-
-
-    placer()
-    // rect(w/2, h/2, w-(marg*2)+mmWt, h-(marg*2)+mmWt, rounding*0.6)
-    rect(w/2, h/2, w-(marg*1.5)+mmWt, h-(marg*1.5)+mmWt, rounding*0.8)
-    setPen(black)
-    num = 30/mmWt
-    
-    for(let i = 0; i < num; i++) {
-
     }
 
-    
+    placer()    
+    setPen(plotPal[0])
+    rect(w/2, h/2, w-(marg)+mmWt, h-(marg)+mmWt, rounding*0.8)
   }
   
-
-  perFrame = 10
-  if(frameCount < numShapes/perFrame) {
-    
-    for(let i = 0; i < perFrame; i++) {
-      shapes[((frameCount*perFrame))+i].show()
-    }
+  if(frameCount < numShapes) {
+    shapes[frameCount].show()
     
   }
 
    if(frameCount > numShapes/perFrame && previewTriggered == false) {
     fxpreview()
     previewTriggered = true
-    // save()
-    console.log('done')
    }
 
    
